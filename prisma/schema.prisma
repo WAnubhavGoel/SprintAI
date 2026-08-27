@@ -1,0 +1,112 @@
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  emailVerified Boolean   @default(false)
+  image         String?
+  lessons       Lesson[]
+  sessions      Session[]
+  accounts      Account[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Lesson {
+  id           String          @id @default(uuid())
+  title        String
+  fileUrl      String
+  status       Status          @default(PROCESSING)
+  notesContent String?         @db.Text
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks       DocumentChunk[]
+  quizzes      Quiz[]
+  createdAt    DateTime        @default(now())
+
+  @@map("lesson")
+}
+
+enum Status {
+  PROCESSING
+  READY
+  FAILED
+}
+
+model DocumentChunk {
+  id         String                      @id @default(uuid())
+  lessonId   String
+  lesson     Lesson                      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  chunkIndex Int
+  content    String                      @db.Text
+  embedding  Unsupported("vector(768)")?
+  createdAt  DateTime                    @default(now())
+
+  @@map("document_chunk")
+}
+
+model Quiz {
+  id        String   @id @default(uuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions Json
+  score     Int?
+  createdAt DateTime @default(now())
+
+  @@map("quiz")
+}
