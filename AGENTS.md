@@ -147,6 +147,8 @@ Do not automatically add:
 
 unless they are required for the functionality being implemented or I explicitly ask for them.
 
+when in option between class based code or factory functions always use factory functions.
+
 ## Database
 
 Keep database operations simple and necessary.

@@ -8,21 +8,28 @@ generator client {
   previewFeatures = ["postgresqlExtensions"]
 }
 
+// Better Auth requires these exact fields on User
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
   name          String?
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean    @default(false)
   image         String?
-  lessons       Lesson[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now()) @updatedAt
+
+  // App relations
+  documents      Document[]
+  conversations  Conversation[]
+
+  // Better Auth relations
   sessions      Session[]
   accounts      Account[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
 
   @@map("user")
 }
 
+// Required by Better Auth
 model Session {
   id        String   @id @default(uuid())
   userId    String
@@ -37,6 +44,7 @@ model Session {
   @@map("session")
 }
 
+// Required by Better Auth ? stores password hash AND googleId (as accountId where providerId = google)
 model Account {
   id                    String    @id @default(uuid())
   userId                String
@@ -56,6 +64,7 @@ model Account {
   @@map("account")
 }
 
+// Required by Better Auth
 model Verification {
   id         String   @id @default(uuid())
   identifier String
@@ -67,19 +76,21 @@ model Verification {
   @@map("verification")
 }
 
-model Lesson {
+// A Document is a PDF the user uploads — called Lesson in the UI
+model Document {
   id           String          @id @default(uuid())
   title        String
-  fileUrl      String
+  fileUrl      String          // Cloudinary secure URL
   status       Status          @default(PROCESSING)
-  notesContent String?         @db.Text
+  notesContent String?         @db.Text  // AI-generated study notes stored here after processing
   userId       String
   user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   chunks       DocumentChunk[]
-  quizzes      Quiz[]
+  quiz         Quiz?
+  conversation Conversation?
   createdAt    DateTime        @default(now())
 
-  @@map("lesson")
+  @@map("document")
 }
 
 enum Status {
@@ -88,25 +99,52 @@ enum Status {
   FAILED
 }
 
+// One chunk = one piece of the PDF text, with a vector embedding for semantic search
 model DocumentChunk {
   id         String                      @id @default(uuid())
-  lessonId   String
-  lesson     Lesson                      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document                    @relation(fields: [documentId], references: [id], onDelete: Cascade)
   chunkIndex Int
   content    String                      @db.Text
-  embedding  Unsupported("vector(768)")?
+  embedding  Unsupported("vector(768)")?  // 768-dim vector from text-embedding-004
   createdAt  DateTime                    @default(now())
 
   @@map("document_chunk")
 }
 
+// Quiz questions generated from the document on demand (1-to-1 with Document)
 model Quiz {
-  id        String   @id @default(uuid())
-  lessonId  String
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  questions Json
-  score     Int?
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  documentId String   @unique
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  questions  Json     // Array of { question, options, answerIndex, explanation }
+  score      Int?     // Set after user completes the quiz
+  createdAt  DateTime @default(now())
 
   @@map("quiz")
+}
+
+// A Conversation is the chat session for a specific Document (1-to-1 with Document)
+model Conversation {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId String    @unique
+  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  messages   Message[]
+  createdAt  DateTime  @default(now())
+
+  @@map("conversation")
+}
+
+// One message inside a Conversation — either sent by the user or the AI
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  isUser         Boolean      @default(true)
+  content        String       @db.Text
+  createdAt      DateTime     @default(now())
+
+  @@map("message")
 }
