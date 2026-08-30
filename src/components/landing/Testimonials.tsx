@@ -44,7 +44,6 @@ const VISIBLE = 3;
 
 export default function Testimonials() {
   const [start, setStart] = useState(0);
-
   const canPrev = start > 0;
   const canNext = start + VISIBLE < testimonials.length;
 
@@ -53,37 +52,34 @@ export default function Testimonials() {
       component="section"
       aria-label="User testimonials"
       sx={{
-        py: { xs: 8, md: 12 },
-        bgcolor: '#F7F9FC',
-        borderTop: '1px solid #F0F4F8',
+        py: { xs: 7, md: 10 },
+        borderTop: '1px solid #F0F0F0',
       }}
     >
-      <Container maxWidth="xl">
-        {/* Heading */}
-        <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 } }}>
+      <Container maxWidth="lg">
+        <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 7 } }}>
           <Typography
             component="h2"
             sx={{
-              fontSize: { xs: '2rem', md: '3rem', lg: '3.5rem' },
+              fontSize: { xs: '1.85rem', md: '2.75rem', lg: '3rem' },
               fontWeight: 800,
               color: '#071A2F',
               letterSpacing: '-0.03em',
-              mb: 1.5,
+              mb: 1.25,
             }}
           >
             See what our users say
           </Typography>
-          <Typography sx={{ color: '#64748B', fontSize: '1.05rem' }}>
+          <Typography sx={{ color: '#64748B', fontSize: '1rem' }}>
             Built to make studying easier.
           </Typography>
         </Box>
 
-        {/* Cards */}
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' },
-            gap: 3,
+            gap: 2.5,
           }}
         >
           {testimonials.slice(start, start + VISIBLE).map((t, i) => (
@@ -91,45 +87,44 @@ export default function Testimonials() {
               key={`${start}-${i}`}
               sx={{
                 bgcolor: 'white',
-                borderRadius: '16px',
-                border: '1px solid #DCE4EE',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.045)',
-                p: 3.5,
+                borderRadius: '14px',
+                border: '1px solid #E5E7EB',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+                p: 3,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2.5,
+                gap: 2,
                 transition: 'transform 0.22s ease, box-shadow 0.22s ease',
                 '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 12px 32px rgba(18,59,109,0.1)',
+                  transform: 'translateY(-3px)',
+                  boxShadow: '0 10px 28px rgba(18,59,109,0.09)',
                 },
               }}
             >
               <Typography
                 sx={{
                   color: '#374151',
-                  lineHeight: 1.75,
-                  fontSize: '0.95rem',
+                  lineHeight: 1.7,
+                  fontSize: '0.92rem',
                   flex: 1,
                   fontStyle: 'italic',
                 }}
               >
-                "{t.quote}"
+                &ldquo;{t.quote}&rdquo;
               </Typography>
               <Box>
-                <Typography sx={{ fontWeight: 700, color: '#111827', fontSize: '0.9rem' }}>
+                <Typography sx={{ fontWeight: 700, color: '#111827', fontSize: '0.88rem' }}>
                   — {t.name}
                 </Typography>
-                <Typography sx={{ fontSize: '0.78rem', color: '#64748B' }}>{t.role}</Typography>
+                <Typography sx={{ fontSize: '0.76rem', color: '#64748B' }}>{t.role}</Typography>
               </Box>
             </Box>
           ))}
         </Box>
 
         {/* Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, gap: 2 }}>
-          {/* Pagination dots */}
-          <Box sx={{ display: 'flex', gap: 0.75, flex: 1 }} role="tablist" aria-label="Testimonial pages">
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 3.5, gap: 1.5 }}>
+          <Box sx={{ display: 'flex', gap: 0.6, flex: 1 }} role="tablist" aria-label="Testimonial pages">
             {testimonials.map((_, i) => {
               const active = i >= start && i < start + VISIBLE;
               return (
@@ -144,10 +139,10 @@ export default function Testimonials() {
                       setStart(Math.min(i, testimonials.length - VISIBLE));
                   }}
                   sx={{
-                    width: active ? 24 : 8,
+                    width: active ? 22 : 8,
                     height: 8,
                     borderRadius: '4px',
-                    bgcolor: active ? '#123B6D' : '#DCE4EE',
+                    bgcolor: active ? '#071A2F' : '#DCE4EE',
                     transition: 'all 0.3s ease',
                     cursor: 'pointer',
                     outline: 'none',
@@ -163,15 +158,15 @@ export default function Testimonials() {
             disabled={!canPrev}
             aria-label="Previous testimonials"
             sx={{
-              bgcolor: canPrev ? 'white' : '#F7F9FC',
-              border: '1px solid #DCE4EE',
-              color: canPrev ? '#123B6D' : '#CBD5E1',
-              width: 40,
-              height: 40,
+              bgcolor: canPrev ? 'white' : 'transparent',
+              border: '1px solid #E5E7EB',
+              color: canPrev ? '#071A2F' : '#CBD5E1',
+              width: 36,
+              height: 36,
               '&:hover': { bgcolor: '#EAF2FB' },
             }}
           >
-            <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: '0.8rem' }} />
+            <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: '0.75rem' }} />
           </IconButton>
 
           <IconButton
@@ -179,16 +174,16 @@ export default function Testimonials() {
             disabled={!canNext}
             aria-label="Next testimonials"
             sx={{
-              bgcolor: canNext ? '#123B6D' : '#F7F9FC',
+              bgcolor: canNext ? '#071A2F' : 'transparent',
               border: '1px solid',
-              borderColor: canNext ? 'transparent' : '#DCE4EE',
+              borderColor: canNext ? 'transparent' : '#E5E7EB',
               color: canNext ? 'white' : '#CBD5E1',
-              width: 40,
-              height: 40,
-              '&:hover': { bgcolor: canNext ? '#071A2F' : '#F7F9FC' },
+              width: 36,
+              height: 36,
+              '&:hover': { bgcolor: canNext ? '#123B6D' : 'transparent' },
             }}
           >
-            <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: '0.8rem' }} />
+            <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: '0.75rem' }} />
           </IconButton>
         </Box>
       </Container>

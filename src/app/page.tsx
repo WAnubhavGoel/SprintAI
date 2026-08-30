@@ -1,5 +1,6 @@
 import Navbar from '@/components/landing/Navbar';
 import Hero from '@/components/landing/Hero';
+import TrustedBy from '@/components/landing/TrustedBy';
 import UploadSection from '@/components/landing/UploadSection';
 import Testimonials from '@/components/landing/Testimonials';
 import CTASection from '@/components/landing/CTASection';
@@ -10,6 +11,7 @@ export default function LandingPage() {
     <main>
       <Navbar />
       <Hero />
+      <TrustedBy />
       <UploadSection />
       <Testimonials />
       <CTASection />

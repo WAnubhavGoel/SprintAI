@@ -6,7 +6,6 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import ThemeRegistry from '@/components/ThemeRegistry';
 import './globals.css';
 
-// Prevent Font Awesome from injecting its CSS automatically — we imported it above.
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
-      <body style={{ background: '#F7F9FC', margin: 0 }}>
+      <body style={{ background: '#F7F9FC', margin: 0, overflowX: 'hidden', maxWidth: '100vw' }}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
             {children}
