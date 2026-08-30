@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
 
 // ─── Prompts ──────────────────────────────────────────────────────────────────
 
@@ -83,10 +84,27 @@ Rules:
 - Each explanation must state WHY the correct answer is right and WHY the others are wrong.
 - Do not repeat questions.`;
 
+// Used for RAG Q&A: instructs Gemini to give a deep answer from the retrieved chunks only
+const EXPLAIN_SYSTEM_PROMPT = `You are SprintAI, an elite technical tutor.
+You are given specific excerpts from a document and a user's question.
+Answer the question in exhaustive, masterclass-level detail using ONLY the provided document content.
+
+Format your answer in GitHub-flavored Markdown with:
+- Clear section headers with emoji
+- Numbered step-by-step breakdowns where applicable
+- Code blocks for any technical implementations or SQL schemas
+- Back-of-the-envelope calculations with every step shown explicitly
+- Trade-off comparisons (Approach A vs Approach B) where relevant
+- A "Key Takeaways 🎯" section at the end summarising the 3-5 most important points
+
+Rules:
+- Answer ONLY from the provided document content. Do not invent or add outside facts.
+- Never give a vague or surface-level answer. Always go deep and thorough.
+- Do NOT start with "Based on the provided context..." or any preamble. Start directly with the answer.
+- If the answer involves calculations, show ALL intermediate steps explicitly with units.`;
+
 // ─── Zod schema ───────────────────────────────────────────────────────────────
 
-// Validates the JSON the AI returns so we know every question has the right shape
-// before we save it to the database.
 const QuizQuestionSchema = z.object({
   question: z.string(),
   options: z.array(z.string()).length(4),
@@ -96,14 +114,10 @@ const QuizQuestionSchema = z.object({
 
 // ─── Gemini client ────────────────────────────────────────────────────────────
 
-// new GoogleGenAI() is the standard library API — used exactly as the library intends.
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 // ─── Exported functions ───────────────────────────────────────────────────────
 
-// Converts a piece of text into a 768-dimensional vector using text-embedding-004.
-// The vector captures the semantic meaning of the text and is stored in PostgreSQL
-// so we can find the most relevant chunks when the user asks a question (RAG).
 export async function generateEmbedding(text: string): Promise<number[]> {
   const result = await ai.models.embedContent({
     model: 'text-embedding-004',
@@ -116,9 +130,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 // Takes all the text chunks from a document and asks Gemini 2.0 Flash to produce
-// exhaustive study notes in the exact structured format defined by NOTES_SYSTEM_PROMPT.
-// maxOutputTokens: 8192 gives the model enough room to produce 2000+ words without
-// being forced to cut the output short.
+// exhaustive study notes. maxOutputTokens: 8192 ensures the model never truncates.
 export async function generateStudyNotes(chunks: string[]): Promise<string> {
   const documentContext = chunks.join('\n\n---\n\n');
 
@@ -135,9 +147,7 @@ export async function generateStudyNotes(chunks: string[]): Promise<string> {
   return result.text ?? '';
 }
 
-// Generates 10 multiple-choice quiz questions from the document chunks.
-// The AI is instructed to return pure JSON. We strip any markdown fences the
-// model might wrap around it, then validate the shape with Zod before saving.
+// Generates 10 multiple-choice quiz questions, validated with Zod before saving to DB.
 export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof QuizQuestionSchema>[]> {
   const documentContext = chunks.join('\n\n---\n\n');
 
@@ -152,11 +162,49 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
   });
 
   const text = result.text ?? '';
-
-  // The model sometimes wraps the JSON in a ```json``` code block — strip it out.
   const jsonMatch = text.match(/\[[\s\S]*\]/);
   if (!jsonMatch) throw new Error('Gemini did not return valid JSON for quiz');
 
   const parsed = JSON.parse(jsonMatch[0]);
   return z.array(QuizQuestionSchema).parse(parsed);
+}
+
+// Queries PostgreSQL with pgvector cosine distance (<=>).
+// Returns the top 15 text chunks from this document that are semantically closest
+// to the user's question. These are passed to answerQuestion as the AI's context window.
+export async function findRelevantChunks(documentId: string, query: string, limit = 15): Promise<string[]> {
+  const queryEmbedding = await generateEmbedding(query);
+  const vectorString = `[${queryEmbedding.join(',')}]`;
+
+  const results = await prisma.$queryRawUnsafe<Array<{ content: string }>>(
+    `SELECT content
+     FROM document_chunk
+     WHERE "documentId" = $2
+       AND embedding IS NOT NULL
+     ORDER BY embedding <=> $1::vector ASC
+     LIMIT $3`,
+    vectorString,
+    documentId,
+    limit
+  );
+
+  return results.map(r => r.content);
+}
+
+// Passes the top 15 relevant chunks + the user's question into Gemini 2.0 Flash.
+// The EXPLAIN_SYSTEM_PROMPT forces a deep, structured, hallucination-free answer.
+export async function answerQuestion(chunks: string[], question: string): Promise<string> {
+  const context = chunks.join('\n\n---\n\n');
+
+  const result = await ai.models.generateContent({
+    model: 'gemini-2.0-flash',
+    contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
+    config: {
+      systemInstruction: EXPLAIN_SYSTEM_PROMPT,
+      maxOutputTokens: 8192,
+      temperature: 0.2,
+    },
+  });
+
+  return result.text ?? '';
 }
