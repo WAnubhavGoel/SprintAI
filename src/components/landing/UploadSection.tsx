@@ -167,14 +167,14 @@ export default function UploadSection() {
               </Typography>
             </Box>
 
-            <Box sx={{ borderLeft: '3px solid #DCE4EE', pl: 2.5 }}>
+            <Box sx={{ borderLeft: '3px solid #3B82F6', pl: 2.5 }}>
               <Typography
                 component="h3"
-                sx={{ fontWeight: 700, color: '#64748B', fontSize: '1.05rem', mb: 0.75 }}
+                sx={{ fontWeight: 700, color: '#111827', fontSize: '1.15rem', mb: 0.75 }}
               >
                 Learn the smart way
               </Typography>
-              <Typography sx={{ color: '#94A3B8', lineHeight: 1.75, fontSize: '0.95rem' }}>
+              <Typography sx={{ color: '#64748B', lineHeight: 1.75, fontSize: '0.95rem' }}>
                 Get exhaustive study notes, a targeted quiz, and an AI that
                 answers your specific questions — all grounded in your own material.
               </Typography>
