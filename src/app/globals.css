@@ -1,4 +1,24 @@
-/* Base styles */
+/* ── SprintAI design tokens (navy-blue adaptation of the learn-theme system) ── */
+:root {
+  --sprint-bg:              #f7f9fc;
+  --sprint-surface:         #ffffff;
+  --sprint-line:            #e8edf4;
+  --sprint-line-deep:       #d0d8e4;
+  --sprint-text:            #1e293b;
+  --sprint-heading:         #071a2f;
+  --sprint-muted:           #64748b;
+  --sprint-soft:            #eef4fb;
+  --sprint-primary:         #123b6d;
+  --sprint-primary-dark:    #071a2f;
+  --sprint-primary-soft:    #dbeafe;
+  --sprint-primary-line:    #93c5fd;
+  --sprint-primary-ink:     #1d4ed8;
+  --sprint-accent:          #3b82f6;
+  --sprint-ambient:         rgba(7,26,47,0.08);
+  --sprint-ambient-strong:  rgba(7,26,47,0.14);
+}
+
+/* ── Base resets ─────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
@@ -18,24 +38,32 @@ a {
   box-sizing: border-box;
 }
 
-/* Coarse grain/noise texture overlay — sits behind all content */
+/* ── Coarse grain noise texture (fixed overlay, sits behind all content) ── */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.45;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  background-size: 256px 256px;
+  background-size: 200px 200px;
 }
 
-/* Ensure all content sits above the grain */
+/* All direct body children sit above the grain */
 body > * {
   position: relative;
   z-index: 1;
+}
+
+/* ── Marquee animation for the TrustedBy strip ───────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Pause on hover */
+.marquee-wrapper:hover .marquee-track {
+  animation-play-state: paused;
 }
