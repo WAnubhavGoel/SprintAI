@@ -32,7 +32,7 @@ export default function Navbar() {
         position: 'sticky',
         top: 0,
         zIndex: 1100,
-        bgcolor: scrolled ? 'rgba(247,245,255,0.92)' : 'transparent',
+        bgcolor: scrolled ? 'rgba(247,249,252,0.92)' : 'transparent',
         backdropFilter: scrolled ? 'blur(16px)' : 'none',
         borderBottom: '1px solid',
         borderColor: scrolled ? '#E5E7EB' : 'transparent',
