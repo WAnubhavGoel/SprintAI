@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
-      <body style={{ background: '#F7F9FC', margin: 0, overflowX: 'hidden', maxWidth: '100vw' }}>
+      <body style={{ margin: 0, overflowX: 'hidden', maxWidth: '100vw' }}>
         <AppRouterCacheProvider>
           <ThemeRegistry>
             {children}

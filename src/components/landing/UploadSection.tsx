@@ -121,8 +121,8 @@ export default function UploadSection() {
       aria-label="Upload your study material"
       sx={{
         py: { xs: 7, md: 10 },
-        bgcolor: 'white',
-        borderTop: '1px solid #F0F0F0',
+        bgcolor: 'transparent',
+        borderTop: '1px solid #E5E7EB',
       }}
     >
       <Container maxWidth="lg">

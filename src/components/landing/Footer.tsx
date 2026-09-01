@@ -22,8 +22,8 @@ export default function Footer() {
     <Box
       component="footer"
       sx={{
-        bgcolor: 'white',
-        borderTop: '1px solid #F0F0F0',
+        bgcolor: 'transparent',
+        borderTop: '1px solid #E5E7EB',
         py: { xs: 5, md: 7 },
       }}
     >
