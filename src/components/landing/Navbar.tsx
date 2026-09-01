@@ -32,12 +32,13 @@ export default function Navbar() {
         position: 'sticky',
         top: 0,
         zIndex: 1100,
-        bgcolor: 'rgba(247,249,252,0.88)',
-        backdropFilter: 'blur(16px)',
+        // Transparent on the gradient section; becomes frosted white once scrolled
+        bgcolor: scrolled ? 'rgba(247,249,252,0.92)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
         borderBottom: '1px solid',
         borderColor: scrolled ? '#E5E7EB' : 'transparent',
         boxShadow: scrolled ? '0 1px 20px rgba(0,0,0,0.05)' : 'none',
-        transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
+        transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
       }}
     >
       <Container maxWidth="lg">
