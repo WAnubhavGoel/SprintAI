@@ -17,7 +17,7 @@ const footerLinks = [
 export default function Footer() {
   return (
     <footer className="border-t border-border/70 py-10 md:py-14">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <SprintAILogoMark />
           <span className="font-extrabold text-lg text-[#071A2F] tracking-tight">

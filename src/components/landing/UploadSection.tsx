@@ -67,7 +67,7 @@ function UploadCard() {
 export default function UploadSection() {
   return (
     <section aria-label="Upload your study material" className="py-16 md:py-24 border-t border-border/70">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#071A2F] tracking-tight mb-12 md:mb-16">
           SprintAI makes learning{' '}
           <span className="text-[#3B82F6]">simple.</span>

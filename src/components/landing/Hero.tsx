@@ -64,8 +64,8 @@ function VideoPlaceholderCard() {
 export default function Hero() {
   return (
     <section aria-label="Hero" className="min-h-[80vh] flex items-center py-12 md:py-16">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 md:gap-12 items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Column */}
           <div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#071A2F] leading-[1.08] mb-5">

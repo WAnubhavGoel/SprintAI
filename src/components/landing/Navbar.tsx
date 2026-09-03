@@ -33,7 +33,7 @@ export default function Navbar() {
           : 'bg-transparent border-b border-transparent'
       )}
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between py-3.5">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between py-3.5">
         <Link href="/" aria-label="SprintAI home" className="flex items-center gap-2">
           <SprintAILogoMark />
           <span className="font-extrabold text-lg text-[#071A2F] tracking-tight">

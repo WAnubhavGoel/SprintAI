@@ -47,7 +47,7 @@ export default function Testimonials() {
 
   return (
     <section aria-label="User testimonials" className="py-16 md:py-24 border-t border-border/70">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 md:mb-14">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#071A2F] tracking-tight mb-2.5">
             See what our users say
