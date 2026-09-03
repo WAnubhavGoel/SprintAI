@@ -1,7 +1,4 @@
-import NextLink from 'next/link';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import Link from 'next/link';
 
 function SprintAILogoMark() {
   return (
@@ -14,54 +11,42 @@ function SprintAILogoMark() {
 
 const footerLinks = [
   { label: 'Privacy', href: '/privacy' },
-  { label: 'Terms',   href: '/terms'   },
+  { label: 'Terms', href: '/terms' },
 ];
 
 export default function Footer() {
   return (
-    <Box
-      component="footer"
-      sx={{
-        bgcolor: 'transparent',
-        borderTop: '1px solid #E5E7EB',
-        py: { xs: 5, md: 7 },
-      }}
-    >
-      <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1.25 }}>
+    <footer className="border-t border-border/70 py-10 md:py-14">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+        <div className="flex items-center justify-center gap-2 mb-3">
           <SprintAILogoMark />
-          <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: '#071A2F', letterSpacing: '-0.03em' }}>
+          <span className="font-extrabold text-lg text-[#071A2F] tracking-tight">
             SprintAI
-          </Typography>
-        </Box>
+          </span>
+        </div>
 
-        <Typography sx={{ color: '#64748B', fontSize: '0.9rem', mb: 3.5 }}>
+        <p className="text-slate-500 text-sm mb-6">
           Study smarter. Move faster.
-        </Typography>
+        </p>
 
-        <Box sx={{ height: '1px', bgcolor: '#F0F0F0', mb: 3.5 }} />
+        <div className="h-px bg-border/60 mb-6 max-w-xs mx-auto" />
 
-        <Box component="nav" aria-label="Footer navigation" sx={{ display: 'flex', justifyContent: 'center', gap: 3.5, mb: 2.5 }}>
+        <nav aria-label="Footer navigation" className="flex justify-center gap-6 mb-4">
           {footerLinks.map(({ label, href }) => (
-            <NextLink key={label} href={href}>
-              <Typography
-                sx={{
-                  color: '#64748B',
-                  fontSize: '0.85rem',
-                  '&:hover': { color: '#123B6D' },
-                  transition: 'color 0.2s ease',
-                }}
-              >
-                {label}
-              </Typography>
-            </NextLink>
+            <Link
+              key={label}
+              href={href}
+              className="text-sm text-slate-500 hover:text-[#123B6D] transition-colors"
+            >
+              {label}
+            </Link>
           ))}
-        </Box>
+        </nav>
 
-        <Typography sx={{ color: '#94A3B8', fontSize: '0.78rem' }}>
+        <p className="text-xs text-slate-400">
           &copy; 2026 SprintAI. All rights reserved.
-        </Typography>
-      </Container>
-    </Box>
+        </p>
+      </div>
+    </footer>
   );
 }

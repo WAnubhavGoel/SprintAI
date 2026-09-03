@@ -1,10 +1,9 @@
 'use client';
+
 import { useState, useEffect } from 'react';
-import NextLink from 'next/link';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 function SprintAILogoMark() {
   return (
@@ -25,65 +24,29 @@ export default function Navbar() {
   }, []);
 
   return (
-    <Box
-      component="nav"
+    <nav
       aria-label="Main navigation"
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1100,
-        bgcolor: scrolled ? 'rgba(247,249,252,0.92)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(16px)' : 'none',
-        borderBottom: '1px solid',
-        borderColor: scrolled ? '#E5E7EB' : 'transparent',
-        boxShadow: scrolled ? '0 1px 20px rgba(0,0,0,0.04)' : 'none',
-        transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-      }}
+      className={cn(
+        'sticky top-0 z-50 transition-all duration-300',
+        scrolled
+          ? 'bg-[#f7f9fc]/90 backdrop-blur-md border-b border-border shadow-xs'
+          : 'bg-transparent border-b border-transparent'
+      )}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5 }}>
-          <NextLink href="/" aria-label="SprintAI home">
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <SprintAILogoMark />
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  fontSize: '1.05rem',
-                  color: '#071A2F',
-                  letterSpacing: '-0.03em',
-                }}
-              >
-                SprintAI
-              </Typography>
-            </Box>
-          </NextLink>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between py-3.5">
+        <Link href="/" aria-label="SprintAI home" className="flex items-center gap-2">
+          <SprintAILogoMark />
+          <span className="font-extrabold text-lg text-[#071A2F] tracking-tight">
+            SprintAI
+          </span>
+        </Link>
 
-          <Button
-            component={NextLink}
-            href="/dashboard"
-            variant="contained"
-            aria-label="Go to dashboard"
-            sx={{
-              bgcolor: '#071A2F',
-              color: 'white',
-              borderRadius: '50px',
-              px: 2.75,
-              py: 0.9,
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              boxShadow: 'none',
-              '&:hover': {
-                bgcolor: '#123B6D',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 14px rgba(18,59,109,0.2)',
-              },
-              transition: 'all 0.2s ease',
-            }}
-          >
+        <Link href="/dashboard">
+          <Button className="rounded-full bg-[#071A2F] text-white hover:bg-[#123B6D] px-5 py-2 font-bold shadow-xs hover:-translate-y-0.5 transition-all">
             Dashboard
           </Button>
-        </Box>
-      </Container>
-    </Box>
+        </Link>
+      </div>
+    </nav>
   );
 }

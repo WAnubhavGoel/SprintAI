@@ -1,13 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import ThemeRegistry from '@/components/ThemeRegistry';
+import { Inter, Geist } from 'next/font/google';
+import { cn } from '@/lib/utils';
 import './globals.css';
 
-config.autoAddCss = false;
-
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
@@ -17,13 +13,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body style={{ margin: 0, overflowX: 'hidden', maxWidth: '100vw' }}>
-        <AppRouterCacheProvider>
-          <ThemeRegistry>
-            {children}
-          </ThemeRegistry>
-        </AppRouterCacheProvider>
+    <html lang="en" className={cn(inter.className, 'font-sans', geist.variable)}>
+      <body className="min-h-screen overflow-x-hidden font-sans antialiased">
+        {children}
       </body>
     </html>
   );

@@ -1,11 +1,9 @@
 'use client';
+
 import { useState } from 'react';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const testimonials = [
   {
@@ -48,145 +46,81 @@ export default function Testimonials() {
   const canNext = start + VISIBLE < testimonials.length;
 
   return (
-    <Box
-      component="section"
-      aria-label="User testimonials"
-      sx={{
-        py: { xs: 7, md: 10 },
-        borderTop: '1px solid #F0F0F0',
-      }}
-    >
-      <Container maxWidth="lg">
-        <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 7 } }}>
-          <Typography
-            component="h2"
-            sx={{
-              fontSize: { xs: '1.85rem', md: '2.75rem', lg: '3rem' },
-              fontWeight: 800,
-              color: '#071A2F',
-              letterSpacing: '-0.03em',
-              mb: 1.25,
-            }}
-          >
+    <section aria-label="User testimonials" className="py-16 md:py-24 border-t border-border/70">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10 md:mb-14">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#071A2F] tracking-tight mb-2.5">
             See what our users say
-          </Typography>
-          <Typography sx={{ color: '#64748B', fontSize: '1rem' }}>
+          </h2>
+          <p className="text-slate-500 text-base">
             Built to make studying easier.
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' },
-            gap: 2.5,
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {testimonials.slice(start, start + VISIBLE).map((t, i) => (
-            <Box
+            <div
               key={`${start}-${i}`}
-              sx={{
-                bgcolor: 'white',
-                borderRadius: '14px',
-                border: '1px solid #E5E7EB',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-                p: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                transition: 'transform 0.22s ease, box-shadow 0.22s ease',
-                '&:hover': {
-                  transform: 'translateY(-3px)',
-                  boxShadow: '0 10px 28px rgba(18,59,109,0.09)',
-                },
-              }}
+              className="bg-white rounded-2xl border border-border shadow-xs p-6 flex flex-col justify-between gap-4 hover:-translate-y-1 hover:shadow-md transition-all"
             >
-              <Typography
-                sx={{
-                  color: '#374151',
-                  lineHeight: 1.7,
-                  fontSize: '0.92rem',
-                  flex: 1,
-                  fontStyle: 'italic',
-                }}
-              >
+              <p className="text-slate-700 leading-relaxed text-sm italic flex-1">
                 &ldquo;{t.quote}&rdquo;
-              </Typography>
-              <Box>
-                <Typography sx={{ fontWeight: 700, color: '#111827', fontSize: '0.88rem' }}>
+              </p>
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">
                   — {t.name}
-                </Typography>
-                <Typography sx={{ fontSize: '0.76rem', color: '#64748B' }}>{t.role}</Typography>
-              </Box>
-            </Box>
+                </h4>
+                <p className="text-xs text-slate-500">{t.role}</p>
+              </div>
+            </div>
           ))}
-        </Box>
+        </div>
 
-        {/* Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 3.5, gap: 1.5 }}>
-          <Box sx={{ display: 'flex', gap: 0.6, flex: 1 }} role="tablist" aria-label="Testimonial pages">
+        {/* Carousel controls */}
+        <div className="flex items-center justify-between mt-8 gap-4">
+          <div className="flex items-center gap-1.5" role="tablist" aria-label="Testimonial pages">
             {testimonials.map((_, i) => {
               const active = i >= start && i < start + VISIBLE;
               return (
-                <Box
+                <button
                   key={i}
+                  type="button"
                   role="tab"
                   aria-selected={active}
-                  tabIndex={0}
                   onClick={() => setStart(Math.min(i, testimonials.length - VISIBLE))}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ')
-                      setStart(Math.min(i, testimonials.length - VISIBLE));
-                  }}
-                  sx={{
-                    width: active ? 22 : 8,
-                    height: 8,
-                    borderRadius: '4px',
-                    bgcolor: active ? '#071A2F' : '#DCE4EE',
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer',
-                    outline: 'none',
-                    '&:focus-visible': { ring: 2, ringColor: '#3B82F6' },
-                  }}
+                  className={cn(
+                    'h-2 rounded-full transition-all duration-300 cursor-pointer',
+                    active ? 'w-6 bg-[#071A2F]' : 'w-2 bg-slate-300'
+                  )}
                 />
               );
             })}
-          </Box>
+          </div>
 
-          <IconButton
-            onClick={() => setStart((s) => s - 1)}
-            disabled={!canPrev}
-            aria-label="Previous testimonials"
-            sx={{
-              bgcolor: canPrev ? 'white' : 'transparent',
-              border: '1px solid #E5E7EB',
-              color: canPrev ? '#071A2F' : '#CBD5E1',
-              width: 36,
-              height: 36,
-              '&:hover': { bgcolor: '#EAF2FB' },
-            }}
-          >
-            <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: '0.75rem' }} />
-          </IconButton>
-
-          <IconButton
-            onClick={() => setStart((s) => s + 1)}
-            disabled={!canNext}
-            aria-label="Next testimonials"
-            sx={{
-              bgcolor: canNext ? '#071A2F' : 'transparent',
-              border: '1px solid',
-              borderColor: canNext ? 'transparent' : '#E5E7EB',
-              color: canNext ? 'white' : '#CBD5E1',
-              width: 36,
-              height: 36,
-              '&:hover': { bgcolor: canNext ? '#123B6D' : 'transparent' },
-            }}
-          >
-            <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: '0.75rem' }} />
-          </IconButton>
-        </Box>
-      </Container>
-    </Box>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={!canPrev}
+              onClick={() => setStart((s) => s - 1)}
+              aria-label="Previous testimonials"
+              className="rounded-lg"
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={!canNext}
+              onClick={() => setStart((s) => s + 1)}
+              aria-label="Next testimonials"
+              className="rounded-lg"
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

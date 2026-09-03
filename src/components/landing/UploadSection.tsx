@@ -1,18 +1,13 @@
-'use client';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilePdf, faNoteSticky, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { FileText, StickyNote, UploadCloud } from 'lucide-react';
 
 const fileTypes = [
   {
-    icon: faFilePdf,
+    icon: FileText,
     label: 'PDF Documents',
     desc: 'Textbooks, lecture slides, study guides',
   },
   {
-    icon: faNoteSticky,
+    icon: StickyNote,
     label: 'Your Notes',
     desc: 'Handwritten or typed notes in any format',
   },
@@ -20,171 +15,92 @@ const fileTypes = [
 
 function UploadCard() {
   return (
-    <Box
-      sx={{
-        bgcolor: 'white',
-        borderRadius: '20px',
-        border: '1px solid #E5E7EB',
-        boxShadow: '0 8px 36px rgba(18,59,109,0.07)',
-        p: { xs: 2.5, md: 3.5 },
-        maxWidth: 420,
-        ml: { md: 'auto' },
-        transition: 'box-shadow 0.3s ease',
-        '&:hover': { boxShadow: '0 14px 50px rgba(18,59,109,0.11)' },
-      }}
-    >
+    <div className="bg-white rounded-3xl border border-border shadow-md p-6 sm:p-8 max-w-[420px] md:ml-auto transition-all hover:shadow-xl">
       {/* Dashed drop zone */}
-      <Box
+      <div
         role="presentation"
         aria-label="File upload area"
-        sx={{
-          border: '2px dashed #DCE4EE',
-          borderRadius: '14px',
-          p: 3,
-          mb: 2.5,
-          textAlign: 'center',
-          background: 'linear-gradient(135deg, #F7F9FC 0%, #EAF2FB 100%)',
-          transition: 'border-color 0.2s ease, background 0.2s ease',
-          cursor: 'pointer',
-          '&:hover': {
-            borderColor: '#3B82F6',
-            background: 'linear-gradient(135deg, #EAF2FB 0%, #DBEAFE 100%)',
-          },
-        }}
+        className="border-2 border-dashed border-slate-200 rounded-2xl p-6 mb-5 text-center bg-gradient-to-br from-[#F7F9FC] to-[#EAF2FB] cursor-pointer hover:border-[#3B82F6] transition-all"
       >
-        <Box sx={{ color: '#3B82F6', fontSize: '2rem', mb: 1.25, lineHeight: 1 }}>
-          <FontAwesomeIcon icon={faCloudArrowUp} />
-        </Box>
-        <Typography sx={{ fontWeight: 700, color: '#111827', fontSize: '0.95rem', mb: 0.5 }}>
+        <div className="flex justify-center text-[#3B82F6] mb-3">
+          <UploadCloud className="size-9" />
+        </div>
+        <h4 className="font-bold text-slate-900 text-sm mb-1">
           Upload your study material
-        </Typography>
-        <Typography sx={{ fontSize: '0.8rem', color: '#64748B' }}>
+        </h4>
+        <p className="text-xs text-slate-500">
           Drag & drop or click to browse
-        </Typography>
-      </Box>
+        </p>
+      </div>
 
       {/* File type rows */}
-      {fileTypes.map((item, i) => (
-        <Box
-          key={i}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.75,
-            p: 1.75,
-            mb: i < fileTypes.length - 1 ? 1.25 : 0,
-            borderRadius: '12px',
-            border: '1px solid #E5E7EB',
-            bgcolor: '#FAFCFF',
-            transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-            '&:hover': {
-              borderColor: '#3B82F6',
-              boxShadow: '0 4px 14px rgba(59,130,246,0.08)',
-            },
-          }}
-        >
-          <Box
-            aria-hidden="true"
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '10px',
-              bgcolor: '#EAF2FB',
-              color: '#123B6D',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              fontSize: '1.1rem',
-            }}
-          >
-            <FontAwesomeIcon icon={item.icon} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontWeight: 700, color: '#111827', fontSize: '0.9rem', mb: 0.15 }}>
-              {item.label}
-            </Typography>
-            <Typography sx={{ fontSize: '0.78rem', color: '#64748B' }}>
-              {item.desc}
-            </Typography>
-          </Box>
-        </Box>
-      ))}
-    </Box>
+      <div className="flex flex-col gap-3">
+        {fileTypes.map((item, i) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-3.5 p-3.5 rounded-xl border border-border bg-[#FAFCFF] hover:border-[#3B82F6] transition-all"
+            >
+              <div
+                aria-hidden="true"
+                className="size-10 rounded-lg bg-[#EAF2FB] text-[#123B6D] flex items-center justify-center shrink-0"
+              >
+                <Icon className="size-5" />
+              </div>
+              <div>
+                <h5 className="font-bold text-slate-900 text-sm leading-tight mb-0.5">
+                  {item.label}
+                </h5>
+                <p className="text-xs text-slate-500">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
 export default function UploadSection() {
   return (
-    <Box
-      component="section"
-      aria-label="Upload your study material"
-      sx={{
-        py: { xs: 7, md: 10 },
-        bgcolor: 'transparent',
-        borderTop: '1px solid #E5E7EB',
-      }}
-    >
-      <Container maxWidth="lg">
-        {/* Section heading */}
-        <Typography
-          component="h2"
-          sx={{
-            textAlign: 'center',
-            fontSize: { xs: '1.85rem', md: '2.75rem', lg: '3rem' },
-            fontWeight: 800,
-            color: '#071A2F',
-            letterSpacing: '-0.03em',
-            mb: { xs: 5, md: 8 },
-          }}
-        >
+    <section aria-label="Upload your study material" className="py-16 md:py-24 border-t border-border/70">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#071A2F] tracking-tight mb-12 md:mb-16">
           SprintAI makes learning{' '}
-          <Box component="span" sx={{ color: '#3B82F6' }}>
-            simple.
-          </Box>
-        </Typography>
+          <span className="text-[#3B82F6]">simple.</span>
+        </h2>
 
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-            gap: { xs: 5, md: 6 },
-            alignItems: 'center',
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
           {/* Left: feature list */}
-          <Box>
-            <Box sx={{ borderLeft: '3px solid #3B82F6', pl: 2.5, mb: 3.5 }}>
-              <Typography
-                component="h3"
-                sx={{ fontWeight: 700, color: '#111827', fontSize: '1.15rem', mb: 0.75 }}
-              >
+          <div className="flex flex-col gap-8">
+            <div className="border-l-[3px] border-[#3B82F6] pl-4">
+              <h3 className="font-bold text-slate-900 text-lg mb-2">
                 Upload your study material
-              </Typography>
-              <Typography sx={{ color: '#64748B', lineHeight: 1.75, fontSize: '0.95rem' }}>
+              </h3>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Add your PDFs, lecture slides, or notes — anything you study
                 from. SprintAI reads and understands your actual material.
-              </Typography>
-            </Box>
+              </p>
+            </div>
 
-            <Box sx={{ borderLeft: '3px solid #3B82F6', pl: 2.5 }}>
-              <Typography
-                component="h3"
-                sx={{ fontWeight: 700, color: '#111827', fontSize: '1.15rem', mb: 0.75 }}
-              >
+            <div className="border-l-[3px] border-[#3B82F6] pl-4">
+              <h3 className="font-bold text-slate-900 text-lg mb-2">
                 Learn the smart way
-              </Typography>
-              <Typography sx={{ color: '#64748B', lineHeight: 1.75, fontSize: '0.95rem' }}>
+              </h3>
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Get exhaustive study notes, a targeted quiz, and an AI that
                 answers your specific questions — all grounded in your own material.
-              </Typography>
-            </Box>
-          </Box>
+              </p>
+            </div>
+          </div>
 
           {/* Right: visual upload card */}
           <UploadCard />
-        </Box>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </section>
   );
 }
