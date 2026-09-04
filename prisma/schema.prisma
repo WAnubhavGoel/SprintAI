@@ -51,6 +51,7 @@ model Account {
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accountId             String
   providerId            String
+  issuer                String?
   accessToken           String?
   refreshToken          String?
   accessTokenExpiresAt  DateTime?

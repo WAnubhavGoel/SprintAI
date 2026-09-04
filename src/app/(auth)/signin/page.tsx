@@ -44,7 +44,11 @@ export default function SignInPage() {
     setError('');
     setLoading(true);
 
-    const result = await signIn.email({ email, password });
+    const result = await signIn.email({
+      email,
+      password,
+      callbackURL: '/dashboard',
+    });
 
     if (result.error) {
       setError(result.error.message || 'Invalid email or password.');
@@ -52,7 +56,7 @@ export default function SignInPage() {
       return;
     }
 
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   }
 
   async function handleGoogleSignIn() {

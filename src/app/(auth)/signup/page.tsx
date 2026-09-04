@@ -45,7 +45,12 @@ export default function SignUpPage() {
     setError('');
     setLoading(true);
 
-    const result = await signUp.email({ name, email, password });
+    const result = await signUp.email({
+      name,
+      email,
+      password,
+      callbackURL: '/dashboard',
+    });
 
     if (result.error) {
       setError(result.error.message || 'Something went wrong. Please try again.');
@@ -53,7 +58,7 @@ export default function SignUpPage() {
       return;
     }
 
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   }
 
   async function handleGoogleSignIn() {
