@@ -4,24 +4,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── SprintAI design tokens (navy-blue adaptation of the learn-theme system) ── */
+/* ── SprintAI brand tokens wired into shadcn semantic system ── */
 :root {
+  /* Raw brand values for one-off overrides only */
   --sprint-bg:              #f7f9fc;
-  --sprint-surface:         #ffffff;
-  --sprint-line:            #e8edf4;
-  --sprint-line-deep:       #d0d8e4;
-  --sprint-text:            #1e293b;
-  --sprint-heading:         #071a2f;
-  --sprint-muted:           #64748b;
-  --sprint-soft:            #eef4fb;
-  --sprint-primary:         #123b6d;
-  --sprint-primary-dark:    #071a2f;
-  --sprint-primary-soft:    #dbeafe;
-  --sprint-primary-line:    #93c5fd;
-  --sprint-primary-ink:     #1d4ed8;
-  --sprint-accent:          #3b82f6;
-  --sprint-ambient:         rgba(7,26,47,0.08);
-  --sprint-ambient-strong:  rgba(7,26,47,0.14);
+  --sprint-navy:            #071a2f;
+  --sprint-navy-mid:        #123b6d;
+  --sprint-blue:            #3b82f6;
+  --sprint-blue-soft:       #eaf2fb;
+
+  /* shadcn semantic tokens → SprintAI brand */
+  --primary:                oklch(0.185 0.055 258);   /* navy #071A2F */
+  --primary-foreground:     oklch(0.985 0 0);
+  --secondary:              oklch(0.95 0.012 220);
+  --secondary-foreground:   oklch(0.185 0.055 258);
+  --muted:                  oklch(0.97 0 0);
+  --muted-foreground:       oklch(0.52 0.02 240);
+  --accent:                 oklch(0.60 0.18 258);     /* blue #3B82F6 */
+  --accent-foreground:      oklch(0.985 0 0);
   --background:              oklch(1 0 0);
   --foreground:              oklch(0.145 0 0);
   --card:              oklch(1 0 0);
@@ -80,16 +80,6 @@ a {
   box-sizing: border-box;
 }
 
-/* ── Marquee animation for the TrustedBy strip ───────────────────────────── */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-/* Pause on hover */
-.marquee-wrapper:hover .marquee-track {
-  animation-play-state: paused;
-}
 
 @theme inline {
   --font-heading:              var(--font-sans);
