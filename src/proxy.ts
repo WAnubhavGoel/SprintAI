@@ -4,7 +4,7 @@ import { getSessionCookie } from 'better-auth/cookies';
 // Routes that require the user to be signed in
 const PROTECTED = ['/dashboard', '/notes'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = PROTECTED.some((path) => pathname.startsWith(path));
