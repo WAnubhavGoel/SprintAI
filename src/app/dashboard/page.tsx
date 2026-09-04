@@ -1,4 +1,5 @@
-﻿// TODO: Phase 7 — Dashboard with UploadBox + LessonCards
+import UploadBox from '@/components/UploadBox';
+
 export default function DashboardPage() {
-  return <div className="min-h-screen p-8"><p>Dashboard</p></div>;
+  return <UploadBox />;
 }
