@@ -40,7 +40,10 @@ export default function Testimonials() {
     <section aria-label="User testimonials" className="py-16 md:py-24 border-t border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight mb-2.5">
+          <h2
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-2.5"
+            style={{ color: 'var(--sprint-navy)' }}
+          >
             See what our users say
           </h2>
           <p className="text-muted-foreground text-base">Built to make studying easier.</p>
@@ -48,13 +51,13 @@ export default function Testimonials() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {testimonials.slice(start, start + VISIBLE).map((t, i) => (
-            <Card key={`${start}-${i}`} className="hover:-translate-y-1 transition-all">
-              <CardContent className="flex flex-col gap-4 h-full">
+            <Card key={`${start}-${i}`} className="hover:-translate-y-1 transition-all shadow-xs">
+              <CardContent className="flex flex-col gap-4 h-full pt-2">
                 <p className="text-muted-foreground leading-relaxed text-sm italic flex-1">
                   &ldquo;{t.quote}&rdquo;
                 </p>
                 <div>
-                  <h4 className="font-bold text-foreground text-sm">— {t.name}</h4>
+                  <h4 className="font-bold text-sm" style={{ color: 'var(--sprint-navy)' }}>— {t.name}</h4>
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </CardContent>
@@ -74,10 +77,11 @@ export default function Testimonials() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setStart(Math.min(i, testimonials.length - VISIBLE))}
-                  className={cn(
-                    'h-2 rounded-full transition-all duration-300 cursor-pointer',
-                    active ? 'w-6 bg-primary' : 'w-2 bg-border'
-                  )}
+                  className="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                  style={{
+                    width: active ? '24px' : '8px',
+                    background: active ? 'var(--sprint-navy)' : 'var(--border)',
+                  }}
                 />
               );
             })}
