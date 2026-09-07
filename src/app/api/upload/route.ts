@@ -1,10 +1,5 @@
-if (typeof globalThis.DOMMatrix === 'undefined') {
-  globalThis.DOMMatrix = class DOMMatrix {} as unknown as typeof DOMMatrix;
-}
-
 import { after } from 'next/server';
 import { headers } from 'next/headers';
-import { PDFParse } from 'pdf-parse';
 import { auth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
@@ -22,6 +17,10 @@ export const maxDuration = 60;
 async function processDocument(documentId: string, buffer: Buffer) {
   try {
     // 1. Extract plain text from the PDF buffer
+    if (typeof globalThis.DOMMatrix === 'undefined') {
+      globalThis.DOMMatrix = class DOMMatrix {} as unknown as typeof DOMMatrix;
+    }
+    const { PDFParse } = await import('pdf-parse');
     const parser = new PDFParse({ data: buffer });
     const result = await parser.getText();
     const text = result.text;
