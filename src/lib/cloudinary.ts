@@ -9,6 +9,12 @@ cloudinary.config({
 // Uploads a file buffer directly to Cloudinary and returns the secure URL.
 // No file is written to disk ? the buffer goes straight to the cloud.
 export function uploadToCloudinary(fileBuffer: Buffer, fileName: string): Promise<string> {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return Promise.reject(
+      new Error('Cloudinary credentials are missing in .env (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)')
+    );
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { resource_type: 'raw', public_id: 'documents/' + Date.now() + '_' + fileName },

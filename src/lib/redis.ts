@@ -1,9 +1,12 @@
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 
-// maxRetriesPerRequest: null is required by BullMQ ? without it, BullMQ throws an error
+// maxRetriesPerRequest: null is required by BullMQ — without it, BullMQ throws an error
 export const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null,
+  ...(process.env.REDIS_URL?.startsWith('rediss://')
+    ? { tls: { rejectUnauthorized: false } }
+    : {}),
 });
 
 // This queue receives jobs whenever a user uploads a document.

@@ -58,7 +58,7 @@ export default function SignUpPage() {
       return;
     }
 
-    window.location.href = '/dashboard';
+    router.push('/dashboard');
   }
 
   async function handleGoogleSignIn() {

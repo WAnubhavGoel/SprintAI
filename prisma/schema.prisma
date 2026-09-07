@@ -89,6 +89,7 @@ model Document {
   chunks       DocumentChunk[]
   quiz         Quiz?
   conversation Conversation?
+  flashcards   Flashcard[]
   createdAt    DateTime        @default(now())
 
   @@map("document")
@@ -148,4 +149,16 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@map("message")
+}
+
+// Flashcard generated from the document on demand (many-to-1 with Document)
+model Flashcard {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  term       String
+  definition String   @db.Text
+  createdAt  DateTime @default(now())
+
+  @@map("flashcard")
 }

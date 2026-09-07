@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { PanelLeft, Plus, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { signOut } from '@/lib/auth-client';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { PanelLeft, Plus, LogOut, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { signOut } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 type PastDoc = { id: string; title: string; createdAt: string };
 
@@ -17,10 +18,10 @@ function groupByDate(docs: PastDoc[]) {
   const weekAgo = new Date(today.getTime() - 7 * 86400000);
 
   const groups: { label: string; docs: PastDoc[] }[] = [
-    { label: 'Today', docs: [] },
-    { label: 'Yesterday', docs: [] },
-    { label: 'Previous 7 Days', docs: [] },
-    { label: 'Older', docs: [] },
+    { label: "Today", docs: [] },
+    { label: "Yesterday", docs: [] },
+    { label: "Previous 7 Days", docs: [] },
+    { label: "Older", docs: [] },
   ];
 
   for (const doc of docs) {
@@ -44,17 +45,27 @@ export default function Sidebar({
   pastDocs: PastDoc[];
 }) {
   const pathname = usePathname();
-  const groups = groupByDate(pastDocs);
+
+  // Local copy so we can remove items instantly on delete without a page refresh
+  const [docs, setDocs] = useState<PastDoc[]>(pastDocs);
+
+  const groups = groupByDate(docs);
+
+  async function handleDelete(docId: string) {
+    // Optimistic update — remove from list immediately
+    setDocs((current) => current.filter((d) => d.id !== docId));
+    await fetch(`/api/notes/${docId}`, { method: "DELETE" });
+  }
 
   return (
     <aside
       className={cn(
-        'h-screen flex flex-col bg-white border-r border-slate-200 transition-all duration-300 shrink-0 overflow-hidden',
-        open ? 'w-[260px]' : 'w-0'
+        "h-screen flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 shrink-0 overflow-hidden",
+        open ? "w-64" : "w-0",
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3">
+      <div className="flex items-center justify-between px-3 pt-3 pb-2">
         <Button
           variant="ghost"
           size="icon"
@@ -71,50 +82,80 @@ export default function Sidebar({
         </Link>
       </div>
 
-      {/* Past documents list */}
-      <nav className="flex-1 overflow-y-auto px-2 pb-2" aria-label="Past documents">
+      {/* Document history */}
+      <nav
+        className="flex-1 overflow-y-auto px-2 pb-2"
+        aria-label="Past documents"
+      >
         {groups.map((group) => (
-          <div key={group.label} className="mb-4">
-            <p className="px-2 py-1 text-xs font-medium text-slate-400">
+          <div key={group.label} className="mb-3">
+            {/* Date group label */}
+            <p className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               {group.label}
             </p>
+
             {group.docs.map((doc) => {
               const href = `/notes/${doc.id}/notes`;
               const active = pathname === href;
+
               return (
-                <Link
-                  key={doc.id}
-                  href={href}
-                  className={cn(
-                    'block px-3 py-2 rounded-lg text-sm truncate transition-colors',
-                    active
-                      ? 'bg-slate-100 text-slate-900 font-medium'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  )}
-                >
-                  {doc.title}
-                </Link>
+                <div key={doc.id} className="group relative flex items-center">
+                  <Link
+                    href={href}
+                    className={cn(
+                      "flex-1 min-w-0 px-3 py-2 pr-8 rounded-lg text-sm truncate transition-colors duration-150",
+                      active
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    )}
+                  >
+                    {doc.title}
+                  </Link>
+
+                  {/* Delete button — shown on hover via group-hover */}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDelete(doc.id);
+                    }}
+                    className="absolute right-1 inset-y-0 my-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    aria-label={`Delete ${doc.title}`}
+                  >
+                    <X />
+                  </Button>
+                </div>
               );
             })}
           </div>
         ))}
 
-        {pastDocs.length === 0 && (
-          <p className="px-3 py-6 text-sm text-slate-400 text-center">
+        {docs.length === 0 && (
+          <p className="px-3 py-8 text-sm text-muted-foreground text-center">
             No documents yet.
           </p>
         )}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — logout */}
       <Separator />
       <div className="p-3">
         <Button
           variant="ghost"
-          className="w-full justify-start gap-2 text-sm text-slate-600 hover:text-slate-900"
-          onClick={() => signOut({ fetchOptions: { onSuccess: () => { window.location.href = '/signin'; } } })}
+          className="w-full justify-start gap-2"
+          onClick={() =>
+            signOut({
+              fetchOptions: {
+                onSuccess: () => {
+                  window.location.href = "/signin";
+                },
+              },
+            })
+          }
         >
-          <LogOut className="size-4" />
+          <LogOut data-icon="inline-start" />
           Log out
         </Button>
       </div>

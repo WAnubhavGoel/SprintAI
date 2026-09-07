@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "worker": "tsx src/workers/document.worker.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -14,6 +15,7 @@
     "@google/genai": "^2.19.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@tailwindcss/typography": "^0.5.20",
     "better-auth": "^1.7.2",
     "bullmq": "^6.3.1",
     "class-variance-authority": "^0.7.1",
@@ -47,6 +49,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.13",
     "typescript": "^5"
   }
 }

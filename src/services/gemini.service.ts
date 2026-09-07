@@ -4,65 +4,52 @@ import { prisma } from '@/lib/prisma';
 
 // ─── Prompts ──────────────────────────────────────────────────────────────────
 
-const NOTES_SYSTEM_PROMPT = `You are Turbo AI, an elite academic and system architecture tutor.
-Your mission is to transform the provided document into exhaustive, masterclass-level study notes formatted in GitHub-flavored Markdown.
+const NOTES_SYSTEM_PROMPT = `You are SprintAI, an elite academic and technical educator.
+Your mission is to transform the provided document into comprehensive, masterclass-level study notes formatted in GitHub-flavored Markdown.
 
-Never give high-level summaries. Always provide deep, exhaustive, textbook-quality technical breakdowns.
+Ground all notes strictly in the provided document content. Never give superficial or high-level summaries. Always provide deep, structured, textbook-quality explanations tailored to the actual subject matter.
 
-You MUST strictly follow this exact structural format:
+Organize the notes into a clear, logical structure that naturally fits the topic (e.g., Computer Science, Machine Learning, Mathematics, Science, Engineering, etc.):
 
 # 📚 [Topic Title]
-[2-3 sentence executive intro setting context, core challenges, and architectural scope]
+[2-3 sentence executive introduction setting context, core themes, and foundational scope based on the document]
 
-## Understanding the problem and estimating scale 📊
-- **Core use-cases**:
-  1️⃣ [Primary use case with clear input → output]
-  2️⃣ [Secondary use case with clear input → output]
-- **Assumptions & Constraints**: [Clear list of boundary conditions]
-- **Back-of-the-envelope numbers**:
-  - [Specific calculations: writes/sec, reads/sec, read-to-write ratios]
-  - [Storage requirements: per second, 5-year/10-year totals, total TB/GB]
+## 1. Overview & Core Intuition 💡
+- **Core Concept**: [Fundamental definition and conceptual intuition of what the topic is]
+- **Key Objectives & Motivations**: [Why this topic/approach exists and what problem it solves]
+- **Foundational Assumptions**: [Core assumptions, prerequisites, or context outlined in the document]
 
-## High-level design: APIs and workflows 🚀
-- **API Surface (REST)**:
-\`\`\`http
-POST /api/v1/...  → request / response shape
-GET  /...         → status codes and behaviour
-\`\`\`
-- **Flow 1**: [Step-by-step: Client → LB → Web → DB/Cache → Response]
-- **Flow 2**: [Step-by-step resolution flow]
-- **Key Architectural Decisions**: [Why A over B with trade-offs]
+## 2. Fundamental Definitions & Principles 🔑
+- Detailed breakdown of core principles, theories, and key mechanisms described in the text.
+- Formulations, equations, or formal definitions if present in the document.
 
-## Data model 📁
-\`\`\`sql
-CREATE TABLE ... (
-    ...
-);
-\`\`\`
-- **Schema Justification**: [Primary keys, index strategy, row-size estimate, sharding logic]
+## 3. Types, Classifications & Methodologies 🧩
+- In-depth coverage of each category, model type, variant, or algorithm discussed in the document (e.g., specific algorithms, taxonomy, classifications).
+- For each type/methodology:
+  - **Definition & Purpose**: What it is and how it works.
+  - **Core Mechanism / Step-by-Step Flow**: How it operates step-by-step.
+  - **Strengths & Characteristics**: Distinguishing features.
 
-## Deep Dive & Algorithmic Design 🔐
-- **Formulas & Proofs**: [e.g. Base-62 capacity: 62^n ≥ target, collision probabilities]
-- **Approach 1 vs Approach 2**: [Pros, cons, data structures like Bloom Filters, Snowflake IDs]
+## 4. How It Works: Step-by-Step Mechanisms ⚙️
+- Detailed procedural breakdown of execution flows, algorithmic steps, or lifecycle operations explained in the text.
+- Include mathematical formulas, algorithmic steps, pseudocode, or data workflows where applicable.
 
-## Detailed Execution Flows ✂️
-- [Step-by-step lifecycle of each main operation]
-- **Caching Strategy**: [Read-through / Write-around, TTL, Redis/Memcached invalidation]
+## 5. Use Cases & Practical Applications 🎯
+- Real-world applications, concrete problem domains, and scenarios where these methods/concepts are applied based on the document.
 
-## Wrap-up & Scalability Talking Points 📈
-- **Rate Limiting**: [Token Bucket / Leaky Bucket algorithms]
-- **DB Partitioning & Replication**: [Sharding keys, read replicas, failover]
-- **CAP Theorem trade-offs**: [Consistency vs Availability choices and why]
+## 6. Trade-offs, Comparisons & Limitations ⚖️
+- Comparative analysis between different approaches or alternatives covered in the document.
+- Strengths, bottlenecks, failure modes, complexity (time/space if relevant), and practical limitations.
 
-## Key Terms 🔑
-| Term | Definition |
+## 7. Key Terms & Vocabulary 📖
+| Term | Authoritative Definition |
 | :--- | :--- |
-| **[Term]** | [Authoritative technical definition] |
+| **[Term]** | [Clear, precise definition based on the document] |
 
 Rules:
-- Do NOT summarise or omit calculations.
-- Do NOT write "etc." or leave placeholders unfilled.
-- Always include real SQL schemas, explicit numbers, and explain the Why behind every trade-off.
+- Adapt sections and terminology dynamically to the document's actual subject matter.
+- Do NOT invent or force irrelevant software engineering artifacts (such as REST APIs, HTTP endpoints, load balancers, SQL schemas, caching strategies, or rate limiting) unless the document is explicitly about software systems architecture.
+- If the document is about machine learning or algorithms (e.g., unsupervised learning), focus deeply on algorithmic mechanics, mathematical foundations, data processing steps, model types, metrics, and use cases.
 - Output only the Markdown. No preamble, no "Here are your notes:".`;
 
 const QUIZ_SYSTEM_PROMPT = `You are a rigorous exam question writer.
@@ -85,31 +72,50 @@ Rules:
 - Do not repeat questions.`;
 
 // Used for RAG Q&A: instructs Gemini to give a deep answer from the retrieved chunks only
-const EXPLAIN_SYSTEM_PROMPT = `You are SprintAI, an elite technical tutor.
+const EXPLAIN_SYSTEM_PROMPT = `You are SprintAI, an elite academic and technical tutor.
 You are given specific excerpts from a document and a user's question.
-Answer the question in exhaustive, masterclass-level detail using ONLY the provided document content.
+Answer the user's question in a clear, deep, and structured manner using ONLY the provided document excerpts.
 
-Format your answer in GitHub-flavored Markdown with:
-- Clear section headers with emoji
-- Numbered step-by-step breakdowns where applicable
-- Code blocks for any technical implementations or SQL schemas
-- Back-of-the-envelope calculations with every step shown explicitly
-- Trade-off comparisons (Approach A vs Approach B) where relevant
-- A "Key Takeaways 🎯" section at the end summarising the 3-5 most important points
+Guidelines:
+- Directly answer the specific question asked. Adapt the structure of your response to what best explains the topic (e.g., definitions, core mechanisms, classifications/types, use cases, trade-offs).
+- Ground your answer strictly in the provided document content. Do not invent or hallucinate facts or topics not present in the excerpts.
+- Do NOT force irrelevant templates, headings, or software architecture elements (such as REST APIs, SQL tables, load balancers, or back-of-the-envelope calculations) unless the question and document are explicitly about them.
+- Format your response using clean GitHub-flavored Markdown:
+  - Clear section headers with emoji
+  - Bullet points and numbered lists for steps
+  - Code blocks or mathematical notation only when relevant to the question and present in the content
+  - A "Key Takeaways 🎯" section at the end summarizing the 3-5 most important points
+- Do NOT include conversational preambles like "Based on the provided excerpts..." or "Here is the answer:". Start directly with the answer.`;
+
+const FLASHCARDS_SYSTEM_PROMPT = `You are an expert technical educator and study guide creator.
+Generate between 10 and 15 high-yield study flashcards from the provided document content.
+
+Output ONLY a valid JSON array — no prose, no markdown fences, no explanation.
+
+Each element must have exactly these fields:
+{
+  "term": "string",
+  "definition": "string"
+}
 
 Rules:
-- Answer ONLY from the provided document content. Do not invent or add outside facts.
-- Never give a vague or surface-level answer. Always go deep and thorough.
-- Do NOT start with "Based on the provided context..." or any preamble. Start directly with the answer.
-- If the answer involves calculations, show ALL intermediate steps explicitly with units.`;
+- "term" must be a concise, critical technical term, concept, component, or algorithm from the document (e.g. "Kafka", "Hash function", "Consistent Hashing").
+- "definition" must be a clear, accurate, and authoritative 1-2 sentence explanation of what it is and its role.
+- Focus on the most foundational and important concepts in the document.
+- Generate between 10 and 15 flashcards. Do not repeat terms.`;
 
-// ─── Zod schema ───────────────────────────────────────────────────────────────
+// ─── Zod schemas ──────────────────────────────────────────────────────────────
 
 const QuizQuestionSchema = z.object({
   question: z.string(),
   options: z.array(z.string()).length(4),
   answerIndex: z.number().min(0).max(3),
   explanation: z.string(),
+});
+
+const FlashcardSchema = z.object({
+  term: z.string(),
+  definition: z.string(),
 });
 
 // ─── Gemini client ────────────────────────────────────────────────────────────
@@ -120,8 +126,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function generateEmbedding(text: string): Promise<number[]> {
   const result = await ai.models.embedContent({
-    model: 'text-embedding-004',
+    model: 'gemini-embedding-001',
     contents: text,
+    config: {
+      outputDimensionality: 768,
+    },
   });
   if (!result.embeddings || !result.embeddings[0]?.values) {
     throw new Error('Gemini embedding API returned no values');
@@ -129,13 +138,13 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   return result.embeddings[0].values;
 }
 
-// Takes all the text chunks from a document and asks Gemini 2.0 Flash to produce
+// Takes all the text chunks from a document and asks Gemini 2.5 Flash to produce
 // exhaustive study notes. maxOutputTokens: 8192 ensures the model never truncates.
 export async function generateStudyNotes(chunks: string[]): Promise<string> {
   const documentContext = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     contents: `Here is the document content:\n\n${documentContext}`,
     config: {
       systemInstruction: NOTES_SYSTEM_PROMPT,
@@ -152,22 +161,67 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
   const documentContext = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
     config: {
       systemInstruction: QUIZ_SYSTEM_PROMPT,
-      maxOutputTokens: 4096,
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'ARRAY',
+        items: {
+          type: 'OBJECT',
+          properties: {
+            question: { type: 'STRING' },
+            options: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+            },
+            answerIndex: { type: 'INTEGER' },
+            explanation: { type: 'STRING' },
+          },
+          required: ['question', 'options', 'answerIndex', 'explanation'],
+        },
+      },
+      maxOutputTokens: 8192,
       temperature: 0.3,
     },
   });
 
-  const text = result.text ?? '';
-  const jsonMatch = text.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) throw new Error('Gemini did not return valid JSON for quiz');
-
-  const parsed = JSON.parse(jsonMatch[0]);
+  const text = result.text ?? '[]';
+  const parsed = JSON.parse(text);
   return z.array(QuizQuestionSchema).parse(parsed);
 }
+
+// Generates 10-15 flashcards (term + definition), validated with Zod before saving to DB.
+export async function generateFlashcards(chunks: string[]): Promise<z.infer<typeof FlashcardSchema>[]> {
+  const documentContext = chunks.join('\n\n---\n\n');
+
+  const result = await ai.models.generateContent({
+    model: 'gemini-3.5-flash',
+    contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
+    config: {
+      systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'ARRAY',
+        items: {
+          type: 'OBJECT',
+          properties: {
+            term: { type: 'STRING' },
+            definition: { type: 'STRING' },
+          },
+          required: ['term', 'definition'],
+        },
+      },
+      temperature: 0.3,
+    },
+  });
+
+  const text = result.text ?? '[]';
+  const parsed = JSON.parse(text);
+  return z.array(FlashcardSchema).parse(parsed);
+}
+
 
 // Queries PostgreSQL with pgvector cosine distance (<=>).
 // Returns the top 15 text chunks from this document that are semantically closest
@@ -191,13 +245,13 @@ export async function findRelevantChunks(documentId: string, query: string, limi
   return results.map(r => r.content);
 }
 
-// Passes the top 15 relevant chunks + the user's question into Gemini 2.0 Flash.
+// Passes the top 15 relevant chunks + the user's question into Gemini 2.5 Flash.
 // The EXPLAIN_SYSTEM_PROMPT forces a deep, structured, hallucination-free answer.
 export async function answerQuestion(chunks: string[], question: string): Promise<string> {
   const context = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
     config: {
       systemInstruction: EXPLAIN_SYSTEM_PROMPT,

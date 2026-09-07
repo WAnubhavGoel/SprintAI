@@ -47,20 +47,26 @@ export default function UploadBox() {
     setError('');
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('question', query.trim());
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('question', query.trim());
 
-    const res = await fetch('/api/upload', { method: 'POST', body: formData });
-    const data = await res.json();
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
-      setError(data.error || 'Upload failed. Please try again.');
+      if (!res.ok) {
+        setError(data?.error || 'Upload failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      router.push(`/notes/${data.documentId}/notes`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong during upload.';
+      setError(message);
       setLoading(false);
-      return;
     }
-
-    router.push(`/notes/${data.documentId}/notes`);
   }
 
   return (

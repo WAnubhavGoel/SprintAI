@@ -1,5 +1,10 @@
 import { redirect } from 'next/navigation';
 
-export default function NotesRootPage({ params }: { params: { id: string } }) {
-  redirect('/notes/' + params.id + '/notes');
+export default async function NotesRootPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  redirect(`/notes/${id}/notes`);
 }

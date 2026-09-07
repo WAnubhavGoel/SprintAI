@@ -1,13 +1,18 @@
-export default function NotesLayout({ children }: { children: React.ReactNode }) {
+import LessonSidebar from '@/components/LessonSidebar';
+
+export default async function LessonLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 bg-zinc-900 p-4">
-        <nav className="flex flex-col gap-2">
-          <a href="notes" className="text-zinc-300">Notes</a>
-          <a href="quiz" className="text-zinc-300">Quiz</a>
-        </nav>
-      </aside>
-      <main className="flex-1 p-8">{children}</main>
+    <div className="flex h-screen bg-white">
+      <LessonSidebar documentId={id} />
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }
