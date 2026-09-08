@@ -50,26 +50,28 @@ async function processDocument(documentId: string, buffer: Buffer) {
       );
     }
 
-    // 4. Generate comprehensive study notes
-    const notesContent = await generateStudyNotes(chunks);
-
-    // 5. Generate 10 multiple-choice quiz questions
-    const questions = await generateQuiz(chunks);
-    await prisma.quiz.create({
-      data: {
-        documentId,
-        questions,
-      },
+    // 4. Generate comprehensive study notes and quiz in parallel
+    const notesPromise = generateStudyNotes(chunks).then(async (notesContent) => {
+      await prisma.document.update({
+        where: { id: documentId },
+        data: {
+          notesContent,
+          status: 'READY',
+        },
+      });
+      return notesContent;
     });
 
-    // 6. Save study notes and mark document as READY
-    await prisma.document.update({
-      where: { id: documentId },
-      data: {
-        notesContent,
-        status: 'READY',
-      },
+    const quizPromise = generateQuiz(chunks).then(async (questions) => {
+      await prisma.quiz.create({
+        data: {
+          documentId,
+          questions,
+        },
+      });
     });
+
+    await Promise.all([notesPromise, quizPromise]);
   } catch (error) {
     console.error(`[${documentId}] Background processing failed:`, error);
     await prisma.document.update({

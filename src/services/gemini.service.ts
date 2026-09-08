@@ -144,7 +144,7 @@ export async function generateStudyNotes(chunks: string[]): Promise<string> {
   const documentContext = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.5-flash-lite',
     contents: `Here is the document content:\n\n${documentContext}`,
     config: {
       systemInstruction: NOTES_SYSTEM_PROMPT,
@@ -161,7 +161,7 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
   const documentContext = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.5-flash-lite',
     contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
     config: {
       systemInstruction: QUIZ_SYSTEM_PROMPT,
@@ -197,7 +197,7 @@ export async function generateFlashcards(chunks: string[]): Promise<z.infer<type
   const documentContext = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-3.5-flash',
+    model: 'gemini-3.5-flash-lite',
     contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
     config: {
       systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
@@ -213,6 +213,7 @@ export async function generateFlashcards(chunks: string[]): Promise<z.infer<type
           required: ['term', 'definition'],
         },
       },
+      maxOutputTokens: 8192,
       temperature: 0.3,
     },
   });
@@ -245,13 +246,13 @@ export async function findRelevantChunks(documentId: string, query: string, limi
   return results.map(r => r.content);
 }
 
-// Passes the top 15 relevant chunks + the user's question into Gemini 2.5 Flash.
+// Passes the top 15 relevant chunks + the user's question into Gemini 3.5 Flash Lite.
 // The EXPLAIN_SYSTEM_PROMPT forces a deep, structured, hallucination-free answer.
 export async function answerQuestion(chunks: string[], question: string): Promise<string> {
   const context = chunks.join('\n\n---\n\n');
 
   const result = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.5-flash-lite',
     contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
     config: {
       systemInstruction: EXPLAIN_SYSTEM_PROMPT,
