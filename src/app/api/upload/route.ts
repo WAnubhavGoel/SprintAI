@@ -20,6 +20,7 @@ async function processDocument(documentId: string, buffer: Buffer) {
     if (typeof globalThis.DOMMatrix === 'undefined') {
       globalThis.DOMMatrix = class DOMMatrix {} as unknown as typeof DOMMatrix;
     }
+    await import('pdf-parse/worker').catch(() => null);
     const { PDFParse } = await import('pdf-parse');
     const parser = new PDFParse({ data: buffer });
     const result = await parser.getText();
