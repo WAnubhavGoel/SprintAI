@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Geist } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import './globals.css';
-
+import { Analytics } from '@vercel/analytics/next';
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -16,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={cn(inter.className, 'font-sans', geist.variable)}>
       <body className="min-h-screen overflow-x-hidden font-sans antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
