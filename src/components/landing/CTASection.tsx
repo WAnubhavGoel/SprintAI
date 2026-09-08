@@ -21,7 +21,7 @@ export default function CTASection() {
               Turn your study material into a focused learning experience with SprintAI.
             </p>
 
-            <Link href="/signup">
+            <Link href="/dashboard">
               <Button size="lg" className="rounded-full font-bold px-8 shadow-md hover:-translate-y-0.5 transition-all">
                 Get started
                 <ArrowRight data-icon="inline-end" />

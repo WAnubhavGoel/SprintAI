@@ -71,7 +71,7 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col items-start gap-4">
-              <Link href="/signup">
+              <Link href="/dashboard">
                 <Button size="lg" className="rounded-full font-bold px-7 shadow-md hover:-translate-y-0.5 transition-all">
                   Get started
                   <ArrowRight data-icon="inline-end" />

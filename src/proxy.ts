@@ -3,28 +3,29 @@ import { getSessionCookie } from 'better-auth/cookies';
 
 // Routes that require the user to be signed in
 const PROTECTED = ['/dashboard', '/notes'];
+// Routes that logged-in users should not visit
+const AUTH_PAGES = ['/signin', '/signup'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  const isProtected = PROTECTED.some((path) => pathname.startsWith(path));
-
-  if (!isProtected) {
-    return NextResponse.next();
-  }
-
-  // Better Auth stores the session in a cookie — check for it
   const sessionCookie = getSessionCookie(request);
 
-  if (!sessionCookie) {
-    const signInUrl = new URL('/signin', request.url);
-    return NextResponse.redirect(signInUrl);
+  // If already logged in and trying to visit signin/signup, redirect to dashboard
+  const isAuthPage = AUTH_PAGES.some((path) => pathname.startsWith(path));
+  if (isAuthPage && sessionCookie) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // If trying to access protected routes without a session, redirect to signin
+  const isProtected = PROTECTED.some((path) => pathname.startsWith(path));
+  if (isProtected && !sessionCookie) {
+    return NextResponse.redirect(new URL('/signin', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  // Run middleware on these paths only (skip static assets & API routes)
-  matcher: ['/dashboard/:path*', '/notes/:path*'],
+  // Run middleware on protected and auth paths only
+  matcher: ['/dashboard/:path*', '/notes/:path*', '/signin', '/signup'],
 };
