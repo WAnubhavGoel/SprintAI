@@ -1,85 +1,8 @@
-import { after } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
-import { chunkText } from '@/services/chunker.service';
-import {
-  generateEmbedding,
-  generateStudyNotes,
-  generateQuiz,
-} from '@/services/gemini.service';
-
-// Allow up to 60 seconds execution time on Vercel for background AI generation
-export const maxDuration = 60;
-
-// Processes the document in the background: text extraction, embeddings, notes & quiz
-async function processDocument(documentId: string, buffer: Buffer) {
-  try {
-    // 1. Extract plain text from the PDF buffer
-    if (typeof globalThis.DOMMatrix === 'undefined') {
-      globalThis.DOMMatrix = class DOMMatrix {} as unknown as typeof DOMMatrix;
-    }
-    await import('pdf-parse/worker').catch(() => null);
-    const { PDFParse } = await import('pdf-parse');
-    const parser = new PDFParse({ data: buffer });
-    const result = await parser.getText();
-    const text = result.text;
-    await parser.destroy();
-
-    // 2. Split text into overlapping 600-word chunks
-    const chunks = chunkText(text);
-
-    // 3. Generate embeddings and save each chunk with pgvector
-    for (let i = 0; i < chunks.length; i++) {
-      const embedding = await generateEmbedding(chunks[i]);
-
-      const chunk = await prisma.documentChunk.create({
-        data: {
-          documentId,
-          chunkIndex: i,
-          content: chunks[i],
-        },
-      });
-
-      const vectorString = `[${embedding.join(',')}]`;
-      await prisma.$executeRawUnsafe(
-        `UPDATE document_chunk SET embedding = $1::vector WHERE id = $2`,
-        vectorString,
-        chunk.id
-      );
-    }
-
-    // 4. Generate comprehensive study notes and quiz in parallel
-    const notesPromise = generateStudyNotes(chunks).then(async (notesContent) => {
-      await prisma.document.update({
-        where: { id: documentId },
-        data: {
-          notesContent,
-          status: 'READY',
-        },
-      });
-      return notesContent;
-    });
-
-    const quizPromise = generateQuiz(chunks).then(async (questions) => {
-      await prisma.quiz.create({
-        data: {
-          documentId,
-          questions,
-        },
-      });
-    });
-
-    await Promise.all([notesPromise, quizPromise]);
-  } catch (error) {
-    console.error(`[${documentId}] Background processing failed:`, error);
-    await prisma.document.update({
-      where: { id: documentId },
-      data: { status: 'FAILED' },
-    });
-  }
-}
+import { documentQueue } from '@/lib/redis';
 
 export async function POST(request: Request) {
   // 1. Verify user session
@@ -100,7 +23,7 @@ export async function POST(request: Request) {
     return Response.json({ error: 'A question is required.' }, { status: 400 });
   }
 
-  // 3. Convert file to buffer and upload to Cloudinary for permanent storage
+  // 3. Convert file to buffer and upload to Cloudinary
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const fileUrl = await uploadToCloudinary(buffer, file.name);
@@ -132,10 +55,10 @@ export async function POST(request: Request) {
     },
   });
 
-  // 7. Run background processing using Next.js 16 after()
-  // This executes after the HTTP response is sent, running completely inside Vercel without external workers.
-  after(async () => {
-    await processDocument(document.id, buffer);
+  // 7. Enqueue background processing job to BullMQ
+  await documentQueue.add('process-document', {
+    documentId: document.id,
+    fileUrl,
   });
 
   // 8. Return immediately with documentId so the client redirects to the notes page
