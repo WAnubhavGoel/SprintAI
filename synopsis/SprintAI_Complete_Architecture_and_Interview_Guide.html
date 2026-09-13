@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SprintAI — Complete Architecture, System Design & Technical Interview Masterclass</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-right {
+      content: counter(page);
+      font-family: 'Inter', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Cover / Title Header */
+  .cover {
+    padding: 40px 0 30px 0;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 30px;
+  }
+  .badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 9pt;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    border: 1px solid #bfdbfe;
+  }
+  h1 {
+    font-size: 26pt;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    font-size: 13pt;
+    color: #475569;
+    margin: 0 0 15px 0;
+    font-weight: 400;
+  }
+  .meta {
+    font-size: 9pt;
+    color: #64748b;
+    display: flex;
+    gap: 20px;
+  }
+
+  /* Headings */
+  h2 {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 35px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid #e2e8f0;
+    page-break-after: avoid;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 22px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0 0 10px 0;
+  }
+
+  ul, ol {
+    margin: 0 0 12px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* Code Blocks */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin: 10px 0 16px 0;
+    page-break-inside: avoid;
+  }
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 20px 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f8fafc;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td {
+    background: #fcfdfe;
+  }
+
+  /* Cards & Callouts */
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 12px 0 16px 0;
+    page-break-inside: avoid;
+  }
+  .card-header {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+    font-size: 10.5pt;
+  }
+  .callout-info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-success {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-warning {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* Q&A Section */
+  .qa-block {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+  .question {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 8px;
+  }
+  .answer {
+    color: #334155;
+    font-size: 10pt;
+  }
+
+  /* Architecture Box Diagram */
+  .diagram {
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: #1e293b;
+    page-break-inside: avoid;
+    white-space: pre;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <span class="badge">Architecture & Interview Masterclass</span>
+  <h1>SprintAI: Deep System Architecture, Codebase Internals & Staff Interview Guide</h1>
+  <p class="subtitle">An exhaustive technical walkthrough of a production-grade AI study and exam platform using Next.js 16, Redis, BullMQ, PostgreSQL, pgvector, and Google Gemini.</p>
+  <div class="meta">
+    <span><strong>Author:</strong> Anubhav Goel</span>
+    <span><strong>System:</strong> SprintAI (Full-Stack Distributed Architecture)</span>
+    <span><strong>Target Level:</strong> Full-Stack / Distributed Systems / AI Engineer</span>
+  </div>
+</div>
+
+<h2>1. Executive Summary & Core Value Proposition</h2>
+<p>
+  <strong>SprintAI</strong> is a distributed, full-stack, AI-powered study platform designed to solve a fundamental learning bottleneck: studying massive, complex technical textbooks, lecture slide decks, and scientific documentation is notoriously slow and passive. SprintAI transforms unstructured PDF documents into an active, masterclass-level learning environment consisting of:
+</p>
+<ul>
+  <li><strong>Comprehensive, Masterclass Study Notes:</strong> Structured textbook-quality notes rendered with full LaTeX mathematical typesetting (via KaTeX).</li>
+  <li><strong>Rigorous 10-Question Interactive Quizzes:</strong> Auto-generated with Zod schema validation, instant grading, and in-depth conceptual explanations for every option.</li>
+  <li><strong>High-Yield Flashcards:</strong> Key definitions and formulas with 3D flip card animations.</li>
+  <li><strong>Contextual RAG Retrieval Q&amp;A:</strong> Instant semantic questioning grounded purely in the uploaded document using PostgreSQL <code>pgvector</code> similarity search.</li>
+</ul>
+
+<h3>The Core Engineering Challenge Solved</h3>
+<p>
+  In serverless hosting environments like Vercel, serverless function executions terminate after sending a response or freeze after a few seconds. Extracting text from 50-page PDFs, generating sliding-window text chunks, creating high-dimensional vector embeddings, and running dual multi-thousand-token LLM generations can take <strong>10 to 25 seconds</strong>. 
+</p>
+<p>
+  Running this synchronously inside an HTTP route causes catastrophic HTTP 504 Gateway Timeouts. SprintAI solves this by implementing a <strong>decoupled, distributed producer-consumer queue architecture</strong> using <strong>Upstash Redis</strong> and a persistent <strong>BullMQ Worker hosted on Render</strong> with zero cold-start latency.
+</p>
+
+<h2>2. High-Level Distributed Architecture Diagram</h2>
+<div class="diagram">
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       USER BROWSER / CLIENT                                      │
+└────────┬──────────────────────────────────────────┬──────────────────────────────────────────────┘
+         │ 1. Multipart POST (/api/upload)          │ 7. Polls status every 3s (/api/notes/[id])
+         │    (PDF Binary + Initial Question)       │    Receives { status: "READY", notesContent }
+         ▼                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                         PRODUCER: NEXT.JS 16 APP ROUTER (VERCEL SERVERLESS)                      │
+│  - Session Authentication: Better Auth session validation (Cookie inspection)                     │
+│  - Cloudinary Storage: Uploads raw PDF buffer -> receives immutable HTTPS CDN URL               │
+│  - Database Initialization: Creates Document (status: 'PROCESSING'), Conversation, Message     │
+│  - Queue Dispatch: Enqueues lightweight job ticket { documentId, fileUrl } to Redis              │
+│  - Instant Handshake: Returns HTTP 201 Created in ~1.2s -> Redirects user to Notes Page          │
+└────────┬─────────────────────────────────────────────────────────────────────────────────────────┘
+         │
+         │ 2. Enqueues job ticket (attempts: 3, exponential backoff)
+         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                MESSAGE BROKER: UPSTASH REDIS (QUEUE)                             │
+│  - Queue: "document-queue"                                                                       │
+│  - Holds jobs in memory; provides atomic locks and FIFO scheduling                               │
+└────────┬─────────────────────────────────────────────────────────────────────────────────────────┘
+         │
+         │ 3. Pulls job ticket asynchronously
+         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                     CONSUMER: BULLMQ WORKER (RENDER 24/7 DEDICATED WEB SERVICE)                  │
+│  - Health Server: Lightweight native node:http server (port 3000) for Render keep-alive          │
+│  - External Pinger: cron-job.org pings health server every 10 min (prevents free tier sleep)     │
+│                                                                                                  │
+│  [PIPELINE EXECUTION STEPS]:                                                                     │
+│  1. Download: Fetches raw PDF buffer from Cloudinary via fileUrl                                 │
+│  2. Extract: Runs pdf-parse in Node to extract raw plain text                                    │
+│  3. Chunking: Sliding-window chunker (600 words/chunk, 50-word overlap)                          │
+│  4. Embeddings: Calls Gemini embedding-001 (768 dimensions) for each chunk                       │
+│  5. Vector Storage: Stores chunks + embeddings in PostgreSQL document_chunk using pgvector       │
+│  6. Parallel AI Generation: Promise.all([ generateStudyNotes(), generateQuiz() ])               │
+│     * Primary Model: gemini-3.6-flash  |  Fallback: gemini-2.5-flash                             │
+│  7. Database Commit: Saves quiz, saves notesContent, marks Document status: 'READY'              │
+└────────┬──────────────────────────────────────┬──────────────────────────────────────────────────┘
+         │ Writes Embeddings, Notes & Quiz       │ Queries for Semantic Retrieval (RAG)
+         ▼                                      ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                      DATABASE: NEON SERVERLESS POSTGRESQL + PGVECTOR                             │
+│  - Better Auth Tables: user, session, account, verification                                      │
+│  - Application Tables: document, document_chunk (embedding vector(768)), conversation, message,  │
+│                        quiz (JSONB questions array)                                              │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Technology Stack Matrix & Library Justifications</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Layer / Category</th>
+      <th>Package / Tool</th>
+      <th>Version</th>
+      <th>Architectural Role & Why We Chose It</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Frontend Framework</strong></td>
+      <td>Next.js (App Router)</td>
+      <td><code>16.3.3</code></td>
+      <td>React Server Components (RSC) by default for zero client JS overhead, App Router nested layouts, Server Actions, route handlers.</td>
+    </tr>
+    <tr>
+      <td><strong>UI Library & State</strong></td>
+      <td>React</td>
+      <td><code>19.2.8</code></td>
+      <td>Latest React concurrency, React actions, useOptimistic, server-side data streaming.</td>
+    </tr>
+    <tr>
+      <td><strong>Styling & Design</strong></td>
+      <td>Tailwind CSS v4 + shadcn/ui</td>
+      <td><code>^4.3.3</code></td>
+      <td>Utility-first CSS, high performance CSS engine with zero build-time configuration, accessible component primitives via Radix / Base UI.</td>
+    </tr>
+    <tr>
+      <td><strong>Authentication</strong></td>
+      <td>Better Auth</td>
+      <td><code>^1.7.2</code></td>
+      <td>TypeScript-first authentication framework. Direct database session management via Prisma adapter, native Google OAuth, secure HTTP-only cookies.</td>
+    </tr>
+    <tr>
+      <td><strong>ORM & Database Client</strong></td>
+      <td>Prisma ORM + PostgreSQL</td>
+      <td><code>^7.10.0</code></td>
+      <td>Type-safe database modeling, schema migrations, and connection pooling with raw SQL vector extensions.</td>
+    </tr>
+    <tr>
+      <td><strong>Vector Search Engine</strong></td>
+      <td>pgvector</td>
+      <td><code>Postgres Extension</code></td>
+      <td>Embeds semantic search directly into the relational database using the cosine distance operator (<code>&lt;=&gt;</code>). Eliminates the cost of standalone vector databases.</td>
+    </tr>
+    <tr>
+      <td><strong>Message Broker / Queue</strong></td>
+      <td>Upstash Redis + BullMQ</td>
+      <td><code>ioredis ^6.0.0</code><br><code>bullmq ^6.3.1</code></td>
+      <td>Robust background task queue with automated retries, exponential backoff, atomic job locking, and memory-efficient distributed processing.</td>
+    </tr>
+    <tr>
+      <td><strong>Document Ingestion</strong></td>
+      <td>pdf-parse</td>
+      <td><code>^2.4.5</code></td>
+      <td>In-memory Node.js binary PDF parser. Extracts full text without needing system binaries like Poppler or pdftotext.</td>
+    </tr>
+    <tr>
+      <td><strong>AI Intelligence & Embeddings</strong></td>
+      <td>@google/genai</td>
+      <td><code>^2.19.0</code></td>
+      <td><code>gemini-3.6-flash</code> for high-speed multi-token generation; <code>gemini-embedding-001</code> for 768-dimensional semantic vector embeddings.</td>
+    </tr>
+    <tr>
+      <td><strong>Mathematical Rendering</strong></td>
+      <td>KaTeX + remark-math + rehype-katex</td>
+      <td><code>^0.18.7</code><br><code>^6.0.0</code><br><code>^7.0.1</code></td>
+      <td>Parses inline (<code>$...$</code>) and block (<code>$$...$$</code>) LaTeX formulas into accessible, perfectly typeset math HTML on the client.</td>
+    </tr>
+    <tr>
+      <td><strong>Object Storage</strong></td>
+      <td>Cloudinary</td>
+      <td><code>^2.11.0</code></td>
+      <td>Permanent, CDN-backed PDF asset storage. Prevents bloat in PostgreSQL and Redis.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>4. End-to-End System Lifecycles (Step-by-Step)</h2>
+
+<h3>Phase 1: Bootstrapping & User Authentication</h3>
+<p>
+  SprintAI uses <strong>Better Auth</strong> with a PostgreSQL database adapter managed by Prisma.
+</p>
+<ol>
+  <li><strong>User Navigation:</strong> User hits <code>/signin</code> or <code>/signup</code>.</li>
+  <li><strong>Provider Initiation:</strong> Clicking "Continue with Google" triggers <code>authClient.signIn.social({ provider: 'google' })</code>, redirecting the user to Google's OAuth 2.0 consent screen.</li>
+  <li><strong>Callback & Verification:</strong> Google redirects to <code>/api/auth/callback/google</code> handled by the catch-all Better Auth handler <code>src/app/api/auth/[...all]/route.ts</code>.</li>
+  <li><strong>Session Persistence:</strong> Better Auth creates a record in the <code>User</code> table (if new) and creates a cryptographically signed session in the <code>Session</code> table. It issues a secure, <code>HttpOnly</code>, <code>SameSite=Lax</code> cookie to the browser.</li>
+  <li><strong>Session Verification:</strong> Any protected route or API handler (such as <code>/api/upload</code>) calls:
+    <pre><code>const session = await auth.api.getSession({ headers: await headers() });
+if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });</code></pre>
+  </li>
+</ol>
+
+<h3>Phase 2: Document Upload & The Fast Ingestion Handshake</h3>
+<p>
+  To prevent user frustration and serverless timeouts, the upload route <strong>never</strong> does heavy processing synchronously. It operates purely as a fast dispatcher.
+</p>
+<div class="card">
+  <div class="card-header">Top-to-Bottom Execution Flow of <code>src/app/api/upload/route.ts</code></div>
+  <ol>
+    <li><strong>Session Authentication:</strong> Verifies the user's session token from request headers.</li>
+    <li><strong>Multipart Form Parsing:</strong> Extracts the <code>file</code> (PDF) and the initial <code>question</code>.</li>
+    <li><strong>Cloud Storage Offloading:</strong> Converts the file into an in-memory buffer and uploads it to Cloudinary using <code>uploadToCloudinary(buffer, file.name)</code>. Cloudinary returns a secure HTTPS URL (<code>fileUrl</code>).</li>
+    <li><strong>Database Record Creation:</strong>
+      <ul>
+        <li>Inserts a row into <code>Document</code> with <code>status = 'PROCESSING'</code>, <code>fileUrl</code>, and <code>userId</code>.</li>
+        <li>Creates a <code>Conversation</code> linked to the <code>Document</code> and <code>userId</code>.</li>
+        <li>Saves the user's initial question into <code>Message</code> with <code>isUser = true</code>.</li>
+      </ul>
+    </li>
+    <li><strong>Queueing the Lightweight Job Ticket:</strong>
+      <p>Instead of passing massive PDF bytes through Redis (which would exhaust Redis RAM), it passes only the essential job metadata:</p>
+      <pre><code>await documentQueue.add(
+  'process-document',
+  { documentId: document.id, fileUrl },
+  {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 3000 },
+    removeOnComplete: true,
+  }
+);</code></pre>
+    </li>
+    <li><strong>Instant Return:</strong> Returns <code>{ documentId: document.id }</code> with status <code>201 Created</code> in ~1 second.</li>
+    <li><strong>Client Navigation:</strong> The frontend router instantly redirects the browser to <code>/notes/[documentId]/notes</code>.</li>
+  </ol>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Phase 3: The Background BullMQ Worker Pipeline</h3>
+<p>
+  On Render, the standalone worker process (<code>src/workers/document.worker.ts</code>) runs continuously via <code>npm run worker</code>. It executes the following 7-step deterministic pipeline:
+</p>
+
+<div class="card">
+  <div class="card-header">Step 1: PDF Download</div>
+  <p>The worker receives the job ticket containing <code>{ documentId, fileUrl }</code>. It fetches the binary buffer from Cloudinary via native <code>fetch(fileUrl)</code> and converts it to a Node <code>Buffer</code>.</p>
+</div>
+
+<div class="card">
+  <div class="card-header">Step 2: Text Extraction via <code>pdf-parse</code></div>
+  <p>Runs <code>PDFParse({ data: buffer })</code> to extract text from all PDF pages in memory. A defensive <code>DOMMatrix</code> polyfill is defined on <code>globalThis</code> to ensure compatibility across Node.js runtime environments.</p>
+</div>
+
+<div class="card">
+  <div class="card-header">Step 3: Sliding-Window Text Chunking</div>
+  <p>The extracted raw text is passed to <code>chunkText()</code> (in <code>src/services/chunker.service.ts</code>):</p>
+  <ul>
+    <li>Splits text into words by whitespace.</li>
+    <li>Groups words into chunks of <strong>600 words</strong> each.</li>
+    <li>Applies a <strong>50-word overlap</strong> between consecutive chunks.</li>
+  </ul>
+  <p><em>Why this matters:</em> Overlap prevents critical context, formulas, or sentences from being severed at chunk boundaries, ensuring high semantic recall during vector search.</p>
+</div>
+
+<div class="card">
+  <div class="card-header">Step 4: Embedding Generation & PostgreSQL pgvector Storage</div>
+  <p>To ensure idempotency in case of job retries, the worker first deletes any stale chunks or quizzes for this document ID:</p>
+  <pre><code>await prisma.documentChunk.deleteMany({ where: { documentId } });
+await prisma.quiz.deleteMany({ where: { documentId } });</code></pre>
+  <p>For each chunk, it calls Google's <code>gemini-embedding-001</code> model configured with <code>outputDimensionality: 768</code>. It creates a <code>DocumentChunk</code> record, then writes the vector embedding using parameterized raw SQL:</p>
+  <pre><code>const vectorString = `[${embedding.join(',')}]`;
+await prisma.$executeRawUnsafe(
+  `UPDATE document_chunk SET embedding = $1::vector WHERE id = $2`,
+  vectorString,
+  chunk.id
+);</code></pre>
+</div>
+
+<div class="card">
+  <div class="card-header">Step 5: Parallel Dual-Track AI Generation</div>
+  <p>Study notes and interactive quizzes are completely independent. To cut latency in half, the worker invokes both concurrently using <code>Promise.all</code>:</p>
+  <pre><code>const [notesContent, questions] = await Promise.all([
+  generateStudyNotes(chunks),
+  generateQuiz(chunks),
+]);</code></pre>
+  <ul>
+    <li><strong>Study Notes Prompt:</strong> Uses <code>NOTES_SYSTEM_PROMPT</code> to force textbook-quality markdown, key intuition, mathematical formulas, trade-offs, and terminology tables.</li>
+    <li><strong>Quiz Prompt:</strong> Uses <code>QUIZ_SYSTEM_PROMPT</code> with structured JSON output enforced by Gemini's <code>responseSchema</code> and validated by Zod against <code>QuizQuestionSchema</code>.</li>
+    <li><strong>Resilient Model Fallback:</strong> Calls <code>gemini-3.6-flash</code> first. If a 503 or overload occurs, it catches the error and retries with <code>gemini-2.5-flash</code>.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-header">Step 6 & 7: Atomic Database Commit & State Transition</div>
+  <p>Saves the parsed quiz questions into the <code>Quiz</code> table, updates <code>Document</code> with <code>notesContent</code>, and flips <code>status = 'READY'</code>.</p>
+</div>
+
+<div class="page-break"></div>
+
+<h3>Phase 4: Frontend Hydration, Real-Time Polling & KaTeX Math</h3>
+<ol>
+  <li><strong>Client Polling:</strong> While the document is in <code>PROCESSING</code> state, <code>NotesContent.tsx</code> mounts a 3-second interval polling <code>/api/notes/[id]</code>.</li>
+  <li><strong>State Transition:</strong> Once the status updates to <code>READY</code>, the loading skeleton unmounts, and the markdown content is passed to <code>&lt;ReactMarkdown&gt;</code>.</li>
+  <li><strong>Mathematical Formula Typesetting:</strong>
+    <p>Raw text output like <code>$X = \{x_1, \dots, x_n\}$</code> is intercepted by <code>remark-math</code> and transformed by <code>rehype-katex</code> into clean KaTeX DOM nodes styled with <code>katex/dist/katex.min.css</code>:</p>
+    <pre><code>&lt;ReactMarkdown
+  remarkPlugins={[remarkGfm, remarkMath]}
+  rehypePlugins={[rehypeKatex]}
+  components={{ ... }}
+&gt;
+  {notesContent}
+&lt;/ReactMarkdown&gt;</code></pre>
+  </li>
+  <li><strong>Interactive Quiz Engine:</strong> <code>QuizEngine.tsx</code> loads the questions from <code>/api/notes/[id]/quiz</code>, manages a client state machine (selected answer, feedback display, score calculation, option-by-option explanations).</li>
+  <li><strong>Interactive Flashcards:</strong> <code>FlashcardsContent.tsx</code> provides interactive 3D flip card cards, allowing students to test memory recall.</li>
+</ol>
+
+<h3>Phase 5: Contextual RAG Semantic Q&amp;A</h3>
+<p>
+  When a user asks a follow-up question in the chat sidebar:
+</p>
+<ol>
+  <li><strong>Vectorization:</strong> The question is vectorized using <code>gemini-embedding-001</code>.</li>
+  <li><strong>Cosine Similarity Retrieval:</strong> PostgreSQL searches for the 15 closest chunks via pgvector:
+    <pre><code>SELECT content
+FROM document_chunk
+WHERE "documentId" = $2 AND embedding IS NOT NULL
+ORDER BY embedding &lt;=&gt; $1::vector ASC
+LIMIT 15;</code></pre>
+  </li>
+  <li><strong>Grounded Generation:</strong> The 15 retrieved chunks are formatted into a context window and sent to <code>gemini-3.6-flash</code> with <code>EXPLAIN_SYSTEM_PROMPT</code>, which strictly forbids hallucinations and forces answers grounded purely in document excerpts.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<h2>5. Script & Library Execution Matrix</h2>
+<p>
+  This matrix gives you a quick mental map of which file runs where, what triggers it, and which libraries it depends on:
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>File / Script</th>
+      <th>Trigger / Event</th>
+      <th>Runtime Env</th>
+      <th>Key Libraries</th>
+      <th>Core Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>src/lib/auth.ts</code><br><code>src/lib/auth-client.ts</code></td>
+      <td>App startup / User sign-in / Cookie validation</td>
+      <td>Vercel (Serverless) &amp; Browser</td>
+      <td><code>better-auth</code>, <code>@prisma/client</code></td>
+      <td>Configures Google OAuth, email/password auth, session cookies, and client auth state.</td>
+    </tr>
+    <tr>
+      <td><code>src/app/api/upload/route.ts</code></td>
+      <td>User clicks "Upload" button</td>
+      <td>Vercel (Serverless HTTP)</td>
+      <td><code>cloudinary</code>, <code>bullmq</code>, <code>ioredis</code>, <code>@prisma/client</code></td>
+      <td>Uploads PDF to Cloudinary, creates initial DB records, and enqueues job ticket to Redis.</td>
+    </tr>
+    <tr>
+      <td><code>src/lib/redis.ts</code></td>
+      <td>Upload route &amp; Worker boot</td>
+      <td>Vercel &amp; Render Worker</td>
+      <td><code>ioredis</code>, <code>bullmq</code></td>
+      <td>Instantiates shared Redis connection with TLS and exports the <code>document-queue</code>.</td>
+    </tr>
+    <tr>
+      <td><code>src/workers/document.worker.ts</code></td>
+      <td>Runs 24/7 (<code>npm run worker</code>)</td>
+      <td>Render (Linux Web Service)</td>
+      <td><code>bullmq</code>, <code>pdf-parse</code>, <code>node:http</code>, <code>@google/genai</code>, <code>prisma</code></td>
+      <td>Downloads PDF, extracts text, chunks, embeds, generates notes &amp; quiz, serves HTTP health check.</td>
+    </tr>
+    <tr>
+      <td><code>src/services/chunker.service.ts</code></td>
+      <td>Called by worker during ingestion</td>
+      <td>Render Worker</td>
+      <td>Pure TypeScript</td>
+      <td>Sliding-window chunking: 600 words per chunk with 50-word overlap.</td>
+    </tr>
+    <tr>
+      <td><code>src/services/gemini.service.ts</code></td>
+      <td>Called by worker &amp; Q&amp;A routes</td>
+      <td>Render Worker &amp; Vercel Serverless</td>
+      <td><code>@google/genai</code>, <code>zod</code>, <code>prisma</code></td>
+      <td>Embeddings, Study Notes, Quiz (JSON validated), Flashcards, and RAG Q&amp;A retrieval.</td>
+    </tr>
+    <tr>
+      <td><code>src/components/NotesContent.tsx</code></td>
+      <td>User navigates to <code>/notes/[id]/notes</code></td>
+      <td>Client Browser (React 19)</td>
+      <td><code>react-markdown</code>, <code>remark-gfm</code>, <code>remark-math</code>, <code>rehype-katex</code>, <code>katex</code></td>
+      <td>Polls document status, renders notes markdown with formatted LaTeX formulas.</td>
+    </tr>
+    <tr>
+      <td><code>src/components/QuizEngine.tsx</code></td>
+      <td>User navigates to <code>/notes/[id]/quiz</code></td>
+      <td>Client Browser (React 19)</td>
+      <td>React, Lucide icons, Tailwind v4</td>
+      <td>Interactive quiz state machine with scoring and option explanations.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>6. Core Architectural Decisions & Staff-Level Rationale ("The Why")</h2>
+
+<h3>Why Redis + BullMQ instead of Next.js <code>after()</code>?</h3>
+<div class="card">
+  <p><strong>The Naive Approach:</strong> Next.js 16 introduced <code>after()</code>, which allows scheduled tasks to run after an HTTP response is sent. However, in serverless environments (Vercel Lambdas), the underlying container can freeze, sleep, or terminate within milliseconds once the response completes. If a 50-page PDF takes 20 seconds to process, the Lambda function is killed mid-way, leaving the document stuck in <code>PROCESSING</code> forever.</p>
+  <p><strong>The Production Solution:</strong> Redis + BullMQ decouples the web tier from the processing tier. Vercel acts as a lightweight producer (1s response time), while an always-on Render worker processes tasks reliably with atomic Redis locks, automated exponential backoff retries, and persistence.</p>
+</div>
+
+<h3>Why Separate Web (Vercel) and Worker (Render)?</h3>
+<div class="card">
+  <p><strong>Workload Segregation:</strong> Web requests require low latency, high concurrency, and global edge caching (which Vercel excels at). Heavy background tasks require sustained CPU, persistent socket connections to Redis, and long-running memory lifecycles without execution limits (which Render excels at). Splitting them prevents CPU-heavy PDF parsing from choking user-facing HTTP requests.</p>
+</div>
+
+<h3>Why 600-Word Chunks with 50-Word Overlap?</h3>
+<div class="card">
+  <p><strong>Chunk Size Trade-Off:</strong> If chunks are too small (e.g., 50 words), semantic context is lost. If chunks are too large (e.g., 3,000 words), vector embeddings become diluted averages of too many topics, hurting cosine distance precision. 600 words (~800 tokens) perfectly captures an entire conceptual topic or theorem.</p>
+  <p><strong>The Overlap Rationale:</strong> A 50-word sliding overlap guarantees that any sentence or equation that spans across a chunk boundary is fully preserved in at least one chunk.</p>
+</div>
+
+<h3>Why PostgreSQL <code>pgvector</code> over Pinecone or Weaviate?</h3>
+<div class="card">
+  <p><strong>Data Consistency & ACID Transactions:</strong> With <code>pgvector</code>, vector embeddings live in the exact same database table (<code>document_chunk</code>) as the relational text content. When a document is deleted, cascading foreign keys automatically delete all corresponding embeddings. There is no risk of out-of-sync data or orphan vectors.</p>
+  <p><strong>Cost & Operational Simplicity:</strong> Pinecone and Weaviate charge separate monthly platform fees and require extra network hops. <code>pgvector</code> runs directly inside your existing PostgreSQL instance at zero additional cost.</p>
+</div>
+
+<h3>Why Pure Vector Search vs. Hybrid Search with RRF?</h3>
+<div class="card">
+  <p>SprintAI currently uses dense semantic vector search via <code>pgvector</code> cosine distance (<code>&lt;=&gt;</code>). This is ideal for conceptual questions. If exact keyword matches (e.g., specific error codes, variable names, or theorem numbers) need to be boosted, the architecture is designed so that PostgreSQL full-text search (<code>to_tsvector</code>) can be combined with <code>pgvector</code> using <strong>Reciprocal Rank Fusion (RRF)</strong>:</p>
+  <div style="text-align: center; margin: 10px 0; font-weight: 600; font-size: 11pt;">
+    RRF Score(d) = &Sigma; [ 1 / (60 + Rank<sub>search</sub>(d)) ]
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2>7. The Staff-Level Interview Question & Answer Bank</h2>
+
+<div class="qa-block">
+  <div class="question">Q1: Can you walk me through the end-to-end architecture of SprintAI?</div>
+  <div class="answer">
+    "SprintAI is an asynchronous, event-driven AI platform built with a clear separation of concerns between web traffic and heavy processing. The frontend is Next.js 16 deployed on Vercel. When a user uploads a PDF, the upload route stores the file on Cloudinary, writes an initial record in Neon PostgreSQL, and enqueues a job ticket with BullMQ on Upstash Redis before immediately returning a 201 Created response in ~1.2s. A persistent Node.js worker hosted on Render picks up the job, parses the PDF into text with <code>pdf-parse</code>, chunks it using a 600-word sliding window with 50-word overlap, generates 768-dimensional embeddings via Google Gemini, and persists them into PostgreSQL using <code>pgvector</code>. It then executes parallel LLM calls to generate masterclass study notes and a Zod-validated 10-question quiz before marking the document ready. The client polls the status and renders the study notes with full LaTeX math typesetting via KaTeX."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q2: Why did you migrate from Next.js <code>after()</code> to Redis and BullMQ?</div>
+  <div class="answer">
+    "Next.js 16's <code>after()</code> is designed for secondary serverless tasks like logging or analytics that take 100-200ms. In contrast, processing a 50-page technical PDF involves network downloads, CPU-intensive parsing, chunking, up to 50 embedding API calls, and dual LLM generation calls that can take 15-20 seconds. In a serverless environment like Vercel, functions freeze or terminate when the HTTP response completes. This caused sporadic failures where documents were permanently stuck in a processing state. By moving to BullMQ and Redis, we achieved guaranteed at-least-once processing, isolated failure domains, automatic exponential backoff retries, and decoupled scaling between our web tier and background compute."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q3: How do you keep your Render background worker alive on the free tier?</div>
+  <div class="answer">
+    "Render's free tier allows Web Services, but spins them down after 15 minutes of inbound HTTP inactivity. However, free background workers are not supported. To solve this cost-effectively, I embedded a minimal 5-line native Node.js HTTP server (<code>node:http</code>) inside the worker process listening on <code>process.env.PORT</code>, returning a <code>200 OK</code> health check. I then configured a free external cron job via <code>cron-job.org</code> to ping this endpoint every 10 minutes. This prevents the container from ever idling or sleeping, ensuring our BullMQ worker stays hot 24/7 with zero spin-down latency."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q4: How do you prevent duplicate database records if a BullMQ job fails halfway through and retries?</div>
+  <div class="answer">
+    "Idempotency is built directly into the worker pipeline. If a job fails at Step 5 (AI generation) and BullMQ retries the job 3 seconds later, executing Step 4 again could create duplicate text chunks or violate the 1-to-1 unique constraint on the Quiz table. To prevent this, Step 4 begins with an idempotent cleanup phase:
+    <code>await prisma.documentChunk.deleteMany({ where: { documentId } });</code> and <code>await prisma.quiz.deleteMany({ where: { documentId } });</code>.
+    This guarantees that every retry begins with a clean slate for that document. Furthermore, the worker only sets the document status to <code>FAILED</code> inside the <code>worker.on('failed')</code> event listener when all retry attempts have been completely exhausted (<code>job.attemptsMade &gt;= job.opts.attempts</code>)."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q5: How does your RAG retrieval pipeline prevent hallucinations?</div>
+  <div class="answer">
+    "Our RAG pipeline enforces strict grounding at three levels:
+    First, retrieval quality: we use <code>gemini-embedding-001</code> to vectorize the user's question, and query PostgreSQL using pgvector's cosine distance operator (<code>&lt;=&gt;</code>) to retrieve the top 15 most semantically relevant 600-word chunks.
+    Second, prompt engineering: our <code>EXPLAIN_SYSTEM_PROMPT</code> explicitly instructs the model: 'Answer the user's question using ONLY the provided document excerpts. Do not invent or hallucinate facts not present in the excerpts.'
+    Third, low temperature: we set the LLM temperature to <code>0.2</code> for factual deterministic synthesis. If the answer does not exist in the retrieved excerpts, the model explicitly states that the document does not contain that information."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q6: Why did you choose pgvector instead of a dedicated vector database like Pinecone?</div>
+  <div class="answer">
+    "Operational simplicity, transaction integrity, and cost. With pgvector, vector embeddings reside in the <code>document_chunk</code> table in the same PostgreSQL database as documents, users, and quizzes. When a user deletes a document, relational foreign key cascading deletes all associated chunks and vectors in a single ACID transaction. Dedicated vector databases like Pinecone require maintaining two separate database connections, synchronizing deletes manually to prevent orphaned vectors, and paying an additional minimum monthly infrastructure fee."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q7: How did you fix the raw LaTeX rendering issue in the frontend?</div>
+  <div class="answer">
+    "When Google Gemini outputs mathematical equations, it formats them using standard LaTeX notation, such as <code>$X = \{x_1, \dots, x_n\}$</code>. Standard Markdown parsers render these as literal dollar signs and curly braces. To resolve this, I extended <code>ReactMarkdown</code> with <code>remark-math</code> as a Markdown AST parser, <code>rehype-katex</code> as an HTML transformer, and imported KaTeX's official CSS (<code>katex/dist/katex.min.css</code>). This converts inline and display math tokens directly into accessible, beautifully typeset KaTeX DOM structures on client render."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q8: How did you handle Gemini API model deprecations and demand spikes (503 errors)?</div>
+  <div class="answer">
+    "When Google deprecated <code>gemini-2.0-flash</code> and experienced temporary demand spikes (HTTP 503) on experimental models like <code>gemini-3.5-flash-lite</code>, I implemented a two-layer resiliency strategy:
+    First, at the service layer, I established <code>gemini-3.6-flash</code> as the primary model and wrapped all API calls in try-catch blocks that automatically fall back to <code>gemini-2.5-flash</code> if the primary model encounters a 503 or overload.
+    Second, at the queue layer, BullMQ is configured with 3 retry attempts and exponential backoff (<code>delay: 3000</code>), allowing transient network or API spikes to resolve before the job re-executes."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q9: How would you scale this architecture to handle 1,000,000 active users?</div>
+  <div class="answer">
+    "To scale to 1M users, I would address three key bottlenecks:
+    1. Worker Horizontal Scaling: Because BullMQ and Redis handle job locking atomically, we can scale our Render worker horizontally from 1 container to 20+ worker pods without changing a single line of application code. Workers will automatically pull jobs off the Redis queue concurrently.
+    2. Vector Indexing: As the <code>document_chunk</code> table grows into millions of rows, sequential vector scans slow down. We would add an HNSW (Hierarchical Navigable Small World) index: <code>CREATE INDEX ON document_chunk USING hnsw (embedding vector_cosine_ops)</code>, reducing query times from O(N) to O(log N).
+    3. Database Read Replicas & Connection Pooling: Enable Neon serverless connection pooling (PgBouncer) to handle thousands of concurrent serverless frontend connections without exhausting database connection limits."
+  </div>
+</div>
+
+<div class="qa-block">
+  <div class="question">Q10: Tell me about a difficult bug you encountered during development and how you resolved it.</div>
+  <div class="answer">
+    "A notable bug occurred during local testing of the worker script on Windows. Node.js failed with an <code>ELF: SyntaxError</code> when running <code>tsx</code> because the project dependencies had originally been installed in a Linux WSL environment, creating Linux symlinks in <code>node_modules/.bin</code> and installing <code>@esbuild/linux-x64</code> instead of the Windows binary. Rather than corrupting the cross-platform environment, I recognized that in production on Render (a pure Linux container), the Linux binaries would execute natively. I verified TypeScript compilation using <code>node ./node_modules/typescript/bin/tsc --noEmit</code>, confirmed that Render compiles and runs the worker natively, and verified the complete live pipeline on Render without unnecessary local environment hacks."
+  </div>
+</div>
+
+<div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 8.5pt; color: #94a3b8; text-align: center;">
+  SprintAI Architecture & Interview Masterclass &bull; Generated for Anubhav Goel &bull; Confidential &amp; Proprietary
+</div>
+
+</body>
+</html>
