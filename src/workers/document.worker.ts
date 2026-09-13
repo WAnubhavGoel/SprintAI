@@ -53,6 +53,10 @@ const worker = new Worker(
       const chunks = chunkText(text);
 
       // 4. Generate vector embeddings and save each chunk to the database
+      // Delete any existing chunks or quiz from a previous attempt before re-inserting
+      await prisma.documentChunk.deleteMany({ where: { documentId } });
+      await prisma.quiz.deleteMany({ where: { documentId } });
+
       console.log(`[${documentId}] Step 4: Generating embeddings for ${chunks.length} chunks...`);
       for (let i = 0; i < chunks.length; i++) {
         const embedding = await generateEmbedding(chunks[i]);
@@ -101,11 +105,7 @@ const worker = new Worker(
 
       console.log(`[${documentId}] Finished processing successfully.`);
     } catch (error) {
-      console.error(`[${documentId}] Document processing failed:`, error);
-      await prisma.document.update({
-        where: { id: documentId },
-        data: { status: 'FAILED' },
-      });
+      console.error(`[${documentId}] Attempt failed:`, error);
       throw error;
     }
   },
@@ -116,8 +116,17 @@ worker.on('completed', (job) => {
   console.log(`Job ${job.id} completed for document ${job.data.documentId}`);
 });
 
-worker.on('failed', (job, error) => {
-  console.error(`Job ${job?.id} failed for document ${job?.data.documentId}:`, error);
+worker.on('failed', async (job, error) => {
+  console.error(`Job ${job?.id} failed (attempt ${job?.attemptsMade}):`, error);
+
+  // Only mark document as FAILED when all retry attempts have been exhausted
+  if (job && job.attemptsMade >= (job.opts.attempts || 1)) {
+    console.error(`All retry attempts exhausted for document ${job.data.documentId}. Setting status to FAILED.`);
+    await prisma.document.update({
+      where: { id: job.data.documentId },
+      data: { status: 'FAILED' },
+    });
+  }
 });
 
 console.log('Worker is running and listening for jobs on document-queue...');

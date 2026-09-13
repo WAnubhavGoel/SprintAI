@@ -138,56 +138,105 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   return result.embeddings[0].values;
 }
 
-// Takes all the text chunks from a document and asks Gemini 2.5 Flash to produce
-// exhaustive study notes. maxOutputTokens: 8192 ensures the model never truncates.
+// Takes all the text chunks from a document and asks Gemini to produce
+// exhaustive study notes. Falls back to gemini-2.5-flash-lite if gemini-2.0-flash is busy.
 export async function generateStudyNotes(chunks: string[]): Promise<string> {
   const documentContext = chunks.join('\n\n---\n\n');
 
-  const result = await ai.models.generateContent({
-    model: 'gemini-3.5-flash-lite',
-    contents: `Here is the document content:\n\n${documentContext}`,
-    config: {
-      systemInstruction: NOTES_SYSTEM_PROMPT,
-      maxOutputTokens: 8192,
-      temperature: 0.2,
-    },
-  });
+  try {
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Here is the document content:\n\n${documentContext}`,
+      config: {
+        systemInstruction: NOTES_SYSTEM_PROMPT,
+        maxOutputTokens: 8192,
+        temperature: 0.2,
+      },
+    });
 
-  return result.text ?? '';
+    return result.text ?? '';
+  } catch (error) {
+    console.warn('gemini-2.0-flash failed, retrying with fallback model...', error);
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Here is the document content:\n\n${documentContext}`,
+      config: {
+        systemInstruction: NOTES_SYSTEM_PROMPT,
+        maxOutputTokens: 8192,
+        temperature: 0.2,
+      },
+    });
+
+    return result.text ?? '';
+  }
 }
 
 // Generates 10 multiple-choice quiz questions, validated with Zod before saving to DB.
 export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof QuizQuestionSchema>[]> {
   const documentContext = chunks.join('\n\n---\n\n');
 
-  const result = await ai.models.generateContent({
-    model: 'gemini-3.5-flash-lite',
-    contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
-    config: {
-      systemInstruction: QUIZ_SYSTEM_PROMPT,
-      responseMimeType: 'application/json',
-      responseSchema: {
-        type: 'ARRAY',
-        items: {
-          type: 'OBJECT',
-          properties: {
-            question: { type: 'STRING' },
-            options: {
-              type: 'ARRAY',
-              items: { type: 'STRING' },
+  let text: string;
+  try {
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
+      config: {
+        systemInstruction: QUIZ_SYSTEM_PROMPT,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              question: { type: 'STRING' },
+              options: {
+                type: 'ARRAY',
+                items: { type: 'STRING' },
+              },
+              answerIndex: { type: 'INTEGER' },
+              explanation: { type: 'STRING' },
             },
-            answerIndex: { type: 'INTEGER' },
-            explanation: { type: 'STRING' },
+            required: ['question', 'options', 'answerIndex', 'explanation'],
           },
-          required: ['question', 'options', 'answerIndex', 'explanation'],
         },
+        maxOutputTokens: 8192,
+        temperature: 0.3,
       },
-      maxOutputTokens: 8192,
-      temperature: 0.3,
-    },
-  });
+    });
 
-  const text = result.text ?? '[]';
+    text = result.text ?? '[]';
+  } catch (error) {
+    console.warn('gemini-2.0-flash quiz generation failed, retrying with fallback...', error);
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
+      config: {
+        systemInstruction: QUIZ_SYSTEM_PROMPT,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              question: { type: 'STRING' },
+              options: {
+                type: 'ARRAY',
+                items: { type: 'STRING' },
+              },
+              answerIndex: { type: 'INTEGER' },
+              explanation: { type: 'STRING' },
+            },
+            required: ['question', 'options', 'answerIndex', 'explanation'],
+          },
+        },
+        maxOutputTokens: 8192,
+        temperature: 0.3,
+      },
+    });
+
+    text = result.text ?? '[]';
+  }
+
   const parsed = JSON.parse(text);
   return z.array(QuizQuestionSchema).parse(parsed);
 }
@@ -196,29 +245,58 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
 export async function generateFlashcards(chunks: string[]): Promise<z.infer<typeof FlashcardSchema>[]> {
   const documentContext = chunks.join('\n\n---\n\n');
 
-  const result = await ai.models.generateContent({
-    model: 'gemini-3.5-flash-lite',
-    contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
-    config: {
-      systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
-      responseMimeType: 'application/json',
-      responseSchema: {
-        type: 'ARRAY',
-        items: {
-          type: 'OBJECT',
-          properties: {
-            term: { type: 'STRING' },
-            definition: { type: 'STRING' },
+  let text: string;
+  try {
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
+      config: {
+        systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              term: { type: 'STRING' },
+              definition: { type: 'STRING' },
+            },
+            required: ['term', 'definition'],
           },
-          required: ['term', 'definition'],
         },
+        maxOutputTokens: 8192,
+        temperature: 0.3,
       },
-      maxOutputTokens: 8192,
-      temperature: 0.3,
-    },
-  });
+    });
 
-  const text = result.text ?? '[]';
+    text = result.text ?? '[]';
+  } catch (error) {
+    console.warn('gemini-2.0-flash flashcards generation failed, retrying with fallback...', error);
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
+      config: {
+        systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              term: { type: 'STRING' },
+              definition: { type: 'STRING' },
+            },
+            required: ['term', 'definition'],
+          },
+        },
+        maxOutputTokens: 8192,
+        temperature: 0.3,
+      },
+    });
+
+    text = result.text ?? '[]';
+  }
+
   const parsed = JSON.parse(text);
   return z.array(FlashcardSchema).parse(parsed);
 }
@@ -246,20 +324,35 @@ export async function findRelevantChunks(documentId: string, query: string, limi
   return results.map(r => r.content);
 }
 
-// Passes the top 15 relevant chunks + the user's question into Gemini 3.5 Flash Lite.
+// Passes the top 15 relevant chunks + the user's question into Gemini.
 // The EXPLAIN_SYSTEM_PROMPT forces a deep, structured, hallucination-free answer.
 export async function answerQuestion(chunks: string[], question: string): Promise<string> {
   const context = chunks.join('\n\n---\n\n');
 
-  const result = await ai.models.generateContent({
-    model: 'gemini-3.5-flash-lite',
-    contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
-    config: {
-      systemInstruction: EXPLAIN_SYSTEM_PROMPT,
-      maxOutputTokens: 8192,
-      temperature: 0.2,
-    },
-  });
+  try {
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
+      config: {
+        systemInstruction: EXPLAIN_SYSTEM_PROMPT,
+        maxOutputTokens: 8192,
+        temperature: 0.2,
+      },
+    });
 
-  return result.text ?? '';
+    return result.text ?? '';
+  } catch (error) {
+    console.warn('gemini-2.0-flash answerQuestion failed, retrying with fallback...', error);
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-lite',
+      contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
+      config: {
+        systemInstruction: EXPLAIN_SYSTEM_PROMPT,
+        maxOutputTokens: 8192,
+        temperature: 0.2,
+      },
+    });
+
+    return result.text ?? '';
+  }
 }

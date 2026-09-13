@@ -55,11 +55,22 @@ export async function POST(request: Request) {
     },
   });
 
-  // 7. Enqueue background processing job to BullMQ
-  await documentQueue.add('process-document', {
-    documentId: document.id,
-    fileUrl,
-  });
+  // 7. Enqueue background processing job to BullMQ with retries
+  await documentQueue.add(
+    'process-document',
+    {
+      documentId: document.id,
+      fileUrl,
+    },
+    {
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 3000,
+      },
+      removeOnComplete: true,
+    }
+  );
 
   // 8. Return immediately with documentId so the client redirects to the notes page
   return Response.json({ documentId: document.id }, { status: 201 });
