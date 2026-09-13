@@ -122,6 +122,9 @@ const FlashcardSchema = z.object({
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
+const PRIMARY_MODEL = 'gemini-3.6-flash';
+const FALLBACK_MODEL = 'gemini-2.5-flash';
+
 // ─── Exported functions ───────────────────────────────────────────────────────
 
 export async function generateEmbedding(text: string): Promise<number[]> {
@@ -139,13 +142,13 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 // Takes all the text chunks from a document and asks Gemini to produce
-// exhaustive study notes. Falls back to gemini-2.5-flash-lite if gemini-2.0-flash is busy.
+// exhaustive study notes. Falls back to FALLBACK_MODEL if PRIMARY_MODEL is busy.
 export async function generateStudyNotes(chunks: string[]): Promise<string> {
   const documentContext = chunks.join('\n\n---\n\n');
 
   try {
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: PRIMARY_MODEL,
       contents: `Here is the document content:\n\n${documentContext}`,
       config: {
         systemInstruction: NOTES_SYSTEM_PROMPT,
@@ -156,9 +159,9 @@ export async function generateStudyNotes(chunks: string[]): Promise<string> {
 
     return result.text ?? '';
   } catch (error) {
-    console.warn('gemini-2.0-flash failed, retrying with fallback model...', error);
+    console.warn(`${PRIMARY_MODEL} failed, retrying with ${FALLBACK_MODEL}...`, error);
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: FALLBACK_MODEL,
       contents: `Here is the document content:\n\n${documentContext}`,
       config: {
         systemInstruction: NOTES_SYSTEM_PROMPT,
@@ -178,7 +181,7 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
   let text: string;
   try {
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: PRIMARY_MODEL,
       contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
       config: {
         systemInstruction: QUIZ_SYSTEM_PROMPT,
@@ -206,9 +209,9 @@ export async function generateQuiz(chunks: string[]): Promise<z.infer<typeof Qui
 
     text = result.text ?? '[]';
   } catch (error) {
-    console.warn('gemini-2.0-flash quiz generation failed, retrying with fallback...', error);
+    console.warn(`${PRIMARY_MODEL} quiz generation failed, retrying with ${FALLBACK_MODEL}...`, error);
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: FALLBACK_MODEL,
       contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 multiple choice questions.`,
       config: {
         systemInstruction: QUIZ_SYSTEM_PROMPT,
@@ -248,7 +251,7 @@ export async function generateFlashcards(chunks: string[]): Promise<z.infer<type
   let text: string;
   try {
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: PRIMARY_MODEL,
       contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
       config: {
         systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
@@ -271,9 +274,9 @@ export async function generateFlashcards(chunks: string[]): Promise<z.infer<type
 
     text = result.text ?? '[]';
   } catch (error) {
-    console.warn('gemini-2.0-flash flashcards generation failed, retrying with fallback...', error);
+    console.warn(`${PRIMARY_MODEL} flashcards generation failed, retrying with ${FALLBACK_MODEL}...`, error);
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: FALLBACK_MODEL,
       contents: `Here is the document content:\n\n${documentContext}\n\nGenerate 10 to 15 flashcards.`,
       config: {
         systemInstruction: FLASHCARDS_SYSTEM_PROMPT,
@@ -331,7 +334,7 @@ export async function answerQuestion(chunks: string[], question: string): Promis
 
   try {
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: PRIMARY_MODEL,
       contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
       config: {
         systemInstruction: EXPLAIN_SYSTEM_PROMPT,
@@ -342,9 +345,9 @@ export async function answerQuestion(chunks: string[], question: string): Promis
 
     return result.text ?? '';
   } catch (error) {
-    console.warn('gemini-2.0-flash answerQuestion failed, retrying with fallback...', error);
+    console.warn(`${PRIMARY_MODEL} answerQuestion failed, retrying with ${FALLBACK_MODEL}...`, error);
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite',
+      model: FALLBACK_MODEL,
       contents: `Document excerpts:\n\n${context}\n\nUser question: ${question}`,
       config: {
         systemInstruction: EXPLAIN_SYSTEM_PROMPT,
