@@ -13,7 +13,10 @@ import {
 // Health check HTTP server so Render can run this worker as a Web Service on the free tier
 const port = process.env.PORT || 3000;
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+    'Access-Control-Allow-Origin': '*',
+  });
   res.end('OK');
 });
 

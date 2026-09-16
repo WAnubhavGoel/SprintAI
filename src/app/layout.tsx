@@ -3,6 +3,8 @@ import { Inter, Geist } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
+import { WorkerWarmup } from '@/components/WorkerWarmup';
+
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -15,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={cn(inter.className, 'font-sans', geist.variable)}>
       <body className="min-h-screen overflow-x-hidden font-sans antialiased">
+        <WorkerWarmup />
         {children}
         <Analytics />
       </body>

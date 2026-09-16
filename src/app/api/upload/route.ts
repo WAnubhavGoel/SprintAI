@@ -72,6 +72,13 @@ export async function POST(request: Request) {
     }
   );
 
-  // 8. Return immediately with documentId so the client redirects to the notes page
+  // 8. Wake up Render worker if it was asleep (fire-and-forget, non-blocking)
+  const workerUrl =
+    process.env.WORKER_URL ||
+    process.env.NEXT_PUBLIC_WORKER_URL ||
+    'https://sprintai-worker.onrender.com';
+  fetch(workerUrl).catch(() => null);
+
+  // 9. Return immediately with documentId so the client redirects to the notes page
   return Response.json({ documentId: document.id }, { status: 201 });
 }
